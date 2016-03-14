@@ -89,6 +89,15 @@ get_by_id("beat").sync(get_by_id("some_loop2"))
 
 # these don't work yet
 
+loop("synctest_a", pluck_(a6, rev=0.6, pan=0.0), 100,
+	pluck_(e2, rev=0.6, pan=0.0), 200,
+	pluck_(c5, rev=0.6, pan=0.0), 100,
+	pluck_(f5, rev=0.6, pan=0.0), 100	
+) >> just_map(pitch_mod(-8)) >> snd1 
+
+
+# state preservation by inheriting parent id ??
+
 graph("markov",
 	node(1, sample_("sn", "3", gain=1.8, speed=0.7, pan=0.0, cutoff=5000, rev=0.1)),
 	edge(1,2, dur=128, prob=50),
@@ -100,22 +109,30 @@ graph("markov",
 ) >> chance_map(
 	none(),
 	(20, pitch_mod(1)),
-	(20, pitch_mod(-1)
+	(20, pitch_mod(-1))
 ) >> snd1
 
 just("simple",
 	sine_(f3, dur=64), 128 
 ) >> poisson_map(lambda = 20,
      		 cycle = 20, 
-		 pitch_mod(1), 
-		 trans_mod=bla(...)
+		 add("pitch", 1),
+		 wrap(add("pitch", 1), 0.0, 1.0)
 ) >> snd1 
 
 just("simple",
 	sine_(f3, dur=64), 128 
-) >> loop_map(pitch_mod(1),
-	      pitch_mod(2)
+) >> loop_map(add("pitch", 1),
+	      add("gain", 12)
 	    )
 ) >> snd1 
 
+
+just("simple",
+	sine_(f3, dur=64), 128 
+) >> count_map(10, add("pitch", 2)) >> snd1 
+
+just("simple",
+	sine_(f3, dur=64), 128 
+)
 
