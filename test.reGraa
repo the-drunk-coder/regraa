@@ -1,0 +1,76 @@
+# here is where the magic starts
+just("simple", sine_(f3, dur=64), 128) >> snd3
+
+
+loop("some_other_loop",
+	sine_(f7, rev=0.6, gain=0.08), 150,
+	sine_(e4, gain=0.01), 150,
+	sine_(a5, gain=0.01), 150
+) >> snd6
+
+loop("freq_loop",
+	sine_(500, rev=0.6, pan=0.0), 512,
+	sine_(600, pan=0.0), 512,
+	sine_(700, pan=1.0), 
+)
+
+get_by_id("freq_loop").start()
+
+silence()
+
+
+loop("plucky",
+	pluck_(a4, rev=0.6, pan=0.0), 200,
+	pluck_(c3, rev=0.6, pan=0.0), 300,
+	pluck_(e5, rev=0.6, pan=0.0), 200,
+	pluck_(e5, rev=0.6, pan=0.0), 100
+) >> snd5
+loop("synctest_a",
+	pluck_(a6, rev=0.6, pan=0.0), 100,
+	pluck_(e2, rev=0.6, pan=0.0), 200,
+	pluck_(c5, rev=0.6, pan=0.0), 100,
+	pluck_(f5, rev=0.6, pan=0.0), 100	
+) >> mjust("dsf", pitch_mod(0)) >> snd1 
+
+
+
+silence()
+
+loop("beat",
+	 sample_("bd", "1", gain=1.0, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512
+) >> snd1
+
+
+
+loop("drybell",
+	risset_(a8, rev=0.6, pan=0.0, dur=1024), 1024,
+	risset_(c4, rev=0.0, pan=0.0, dur=1024), 1024,	
+	risset_(e5, pan=0.0, dur=1024), 1024,
+	risset_(f5, pan=1.0, dur=1024), 1024
+) >> snd1
+
+
+loop("some_loop",
+	buzz_(a2, gain=0.4, rev=0.3, cutoff=a4, pan=0.0), 512,
+	buzz_(e1, gain=0.4, cutoff=e5, pan=0.0), 256,
+	buzz_(f2, gain=0.4, rev=0.6, cutoff=c7, pan=0.0), 512,
+	buzz_(c2, gain=0.4, cutoff=c6, pan=0.0), 256
+) >> snd2
+
+loop("some_loop2",
+	pluck_(a4, gain=0.8, rev=0.3, cutoff=a4, pan=0.0), 1024,
+	pluck_(e3, gain=0.8, cutoff=e5, pan=0.0), 1024,
+	pluck_(f4, gain=0.8, rev=0.6, cutoff=c7, pan=0.0), 1024,
+	pluck_(c4, gain=0.8, cutoff=c8, pan=0.0), 1024
+) >> snd4
+
+loop("beat",
+	sample_("sn", "3", gain=0.8, speed=0.7, pan=0.0, cutoff=5000, rev=0.1), 1024,
+	sample_("bd", "1", gain=1.0, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 1024
+) >> snd1
+
+
+get_by_id("beat").sync(get_by_id("some_loop2"))
+get_by_id("beat").sync(get_by_id("some_loop"))
+
+silence()

@@ -1,0 +1,54 @@
+* TODO externe variablen auflösen
+  
+  q = 128
+  just("bla", sine_(c4), var(q)) >> snd1 
+  
+  hier sollte das objekt auf veränderung von q entspr. reagieren
+* TODO meta-funktionen als event 
+  
+  just("bla", sine_(c4), 1024)
+  
+  loop("conduct",
+      meta(subscribe, "bla", snd1), 4096,
+      meta(unsubscribe, "bla", snd1), 4096
+  )
+  
+  hier sollte der loop das routing übernehmen
+* TODO test-cases für sound events
+* TODO test-cases, überhaupt 
+* TODO doku, as usual 
+* TODO modificators 
+* DONE objekte im inaktiven zustand erstellen
+  CLOSED: [2016-03-11 Fr 18:03]
+  - CLOSING NOTE [2016-03-11 Fr 18:03] \\
+    nun default, objekte werden erst von einem aktivator aktiviert !
+  just("bla", sine_(c4), var(q), inactive=True) >> snd1 
+  sollte keinen klang ergeben
+  wichtig für die Verwendung als kompositions-sprache
+* TODO einheitliche default-werte
+* DONE erstes event wird nicht gespielt 
+  CLOSED: [2016-03-11 Fr 18:04]
+  - CLOSING NOTE [2016-03-11 Fr 18:04] \\
+    aktivator-konzept eingebaut ... erst wenn eine chain auf einen "aktivator" trifft,
+    fird die activation notice durch die kette gefeuert 
+* DONE add some sync mechanism for objects
+  CLOSED: [2016-03-14 Mo 11:43]
+  - CLOSING NOTE [2016-03-14 Mo 11:43] \\
+    basically done, now it needs to be fixed
+* TODO fix repeated play for sync mechanism
+* TODO chords (in the widest sense) multi-event objects 
+  loop("cprog",
+      chord(
+         buzz_(),
+	 sine_()
+	 ), 512, 
+      chord(
+         buzz_(),
+	 sine_()
+	 ), 512,
+      ) >> snd1 
+	 
+* DONE sample-folder as environment variable
+  CLOSED: [2016-03-14 Mo 11:51]
+  - CLOSING NOTE [2016-03-14 Mo 11:51] \\
+    done !
