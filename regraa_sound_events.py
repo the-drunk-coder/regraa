@@ -30,7 +30,7 @@ class tuned_sound_event(sound_event):
         self.freq = float(self.pitch.pitch.frequency)
 
 class synth_sound_event(sound_event):
-    def __init__(self, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.5, cutoff=15000):
+    def __init__(self, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         sound_event.__init__(self, gain = gain, dur = dur)        
         self.sustain = dur - a - d - r
         self.attack = a
@@ -58,7 +58,7 @@ class synth_sound_event(sound_event):
 # end synth_sound_event
 
 class sample_sound_event(synth_sound_event):
-    def __init__(self, *args, gain=0.5, dur=0, a=4, speed=1.0, start=0.0, r=5, rev=0.0, pan=0.5, cutoff=20000):
+    def __init__(self, *args, gain=0.5, dur=0, a=4, speed=1.0, start=0.0, r=5, rev=0.0, pan=0.0, cutoff=20000):
         synth_sound_event.__init__(self, gain=gain, dur=dur, a=a, d=0, r=r, rev=rev, pan=pan, cutoff=cutoff)
         self.folder = str(args[0])
         self.name = str(args[1])        
@@ -82,7 +82,7 @@ class sample_sound_event(synth_sound_event):
 # end sample_sound_event()
 
 class tuned_synth_sound_event(synth_sound_event, tuned_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.5, cutoff=15000):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         tuned_sound_event.__init__(self, args[0], gain = gain, dur = dur)
         synth_sound_event.__init__(self, gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)        
     def get_osc_bundle(self):
@@ -135,49 +135,49 @@ class midi_(tuned_sound_event):
 """ Synthetic sounds, created with the SC3 backend ... """
 
 class sine_(tuned_synth_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.5, cutoff=15000):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         self.synth_name = "sine"
         tuned_synth_sound_event.__init__(self, args[0], gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)
 # end sine_
 
 class sqr_(tuned_synth_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.5, cutoff=15000):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         self.synth_name = "sqr"
         tuned_synth_sound_event.__init__(self, args[0], gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)
 # end sqr_
 
 class buzz_(tuned_synth_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.5, cutoff=15000):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         self.synth_name = "buzz"
         tuned_synth_sound_event.__init__(self, args[0], gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)
 # end buzz_
 
 class subt_(tuned_synth_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.5, cutoff=15000):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         self.synth_name = "subt"
         tuned_synth_sound_event.__init__(self, args[0], gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)
 # end subt_
 
 class risset_(tuned_synth_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.5, cutoff=15000):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         self.synth_name = "risset"
         tuned_synth_sound_event.__init__(self, args[0], gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)
 # end risset_
 
 class pluck_(tuned_synth_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.5, cutoff=15000):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         self.synth_name = "pluck"
         tuned_synth_sound_event.__init__(self, args[0], gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)
 # end pluck_
 
 class noise_(synth_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.5, cutoff=15000):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         self.synth_name = "noise"
         synth_sound_event.__init__(self, args[0], gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)        
 # end noise_
 
 class sample_(sample_sound_event):
-    def __init__(self, *args, gain=0.5, dur=0, a=4, speed=1.0, start=0.0, r=5, rev=0.0, pan=0.5, cutoff=20000):
+    def __init__(self, *args, gain=0.5, dur=0, a=4, speed=1.0, start=0.0, r=5, rev=0.0, pan=0.0, cutoff=20000):
         if dur > 0.0:
             self.synth_name="grain"
         else:
@@ -186,7 +186,7 @@ class sample_(sample_sound_event):
 # end sample_
         
 class sample8ch_(sample_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256, a=4, speed=1.0, start=0.0, r=5, rev=0.0, pan=0.5, cutoff=20000):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, speed=1.0, start=0.0, r=5, rev=0.0, pan=0.0, cutoff=20000):
         if dur > 0.0:
             self.synth_name="grain8"
         else:
