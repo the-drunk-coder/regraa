@@ -1,4 +1,5 @@
 import os, sys
+from infix import or_infix
 from regraa_pitch import *
 from regraa_sound_events import *
 from regraa_generators import *
@@ -19,6 +20,10 @@ def silence():
         regraa_objects[id].deactivate()
     for id in regraa_transformers:
         regraa_transformers[id].active = False
+
+@or_infix
+def sync(one, two):
+    one.sync(two)
         
 os.system('clear')
 sys.ps1 = "reGraa> "

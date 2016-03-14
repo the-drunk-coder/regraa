@@ -14,7 +14,7 @@ class pitch_mod(abstract_event_modifier):
 
 regraa_transformers = {}
         
-def smap(id=None, event_modifier, transition_modifier=None):
+def smap(event_modifier, transition_modifier=None, id=None):
     """ Map single event modifier to stream. """
     if id is not None and id in regraa_transformers:
         current_object = regraa_transformers[id].update(event_modifier, transition_modifier)

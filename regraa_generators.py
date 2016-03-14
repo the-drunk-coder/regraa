@@ -21,8 +21,7 @@ class _just(schedulable_observable):
     """ Just one repeated event. """
     def __init__(self, event, transition_time):
         schedulable_observable.__init__(self)
-        self.update(event, transition_time)
-        self.start()
+        self.update(event, transition_time)        
     def update(self, event, transition_time):
         self.transition = transition(transition_time)
         self.event = event
@@ -45,7 +44,7 @@ def loop(*args):
         new_obj = _loop(args[1:])
         regraa_objects[id] = new_obj
         return new_obj
-
+    
 class _loop(schedulable_observable):
     """ Looped of events with transition times between them (inner class). """
     def __init__(self, sequence):

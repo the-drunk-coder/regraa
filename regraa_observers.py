@@ -6,8 +6,12 @@ import regraa_supercollider_client as sc_client
 class sound_out(abstract_observer):
     def __init__(self):
         abstract_observer.__init__(self)
-    def on_event(self, event):        
-        if self.is_synth_sound_event(event):                        
+    def on_event(self, event):
+        if is_chord(event):
+            for sub_event in event.content:
+                #sub_event.ntp_timestamp = event.ntp_timestamp
+                self.on_event(sub_event)
+        elif self.is_synth_sound_event(event):                        
             try:
                 sc_client.send(event.get_osc_bundle())
             except Exception as e:
@@ -19,7 +23,7 @@ class sound_out(abstract_observer):
         return event
     def is_synth_sound_event(self, event):
         try:
-            type(sine_(c4)).mro().index(synth_sound_event)
+            type(event).mro().index(synth_sound_event)
         except ValueError:           
             return False
         return True

@@ -1,7 +1,6 @@
 # here is where the magic starts
 just("simple", sine_(f3, dur=64), 128) >> snd3
 
-
 loop("some_other_loop",
 	sine_(f7, rev=0.6, gain=0.08), 150,
 	sine_(e4, gain=0.01), 150,
@@ -18,19 +17,34 @@ get_by_id("freq_loop").start()
 
 silence()
 
+loop("plucky",
+	chord(
+            pluck_(a4, rev=0.6, pan=0.0),
+	    pluck_(c4, rev=0.6, pan=0.0),
+            pluck_(e4, rev=0.6, pan=0.0)
+	), 512, 
+	chord(
+	    pluck_(f5, rev=0.6, pan=0.0), 
+	    pluck_(a5, rev=0.6, pan=0.0),
+	    pluck_(c5, rev=0.6, pan=0.0)
+	), 512
+) >> snd5
 
 loop("plucky",
-	pluck_(a4, rev=0.6, pan=0.0), 200,
-	pluck_(c3, rev=0.6, pan=0.0), 300,
-	pluck_(e5, rev=0.6, pan=0.0), 200,
-	pluck_(e5, rev=0.6, pan=0.0), 100
+	pluck_(a4, rev=0.6, pan=0.0), 0,
+	pluck_(c4, rev=0.6, pan=0.0), 0,
+	pluck_(e4, rev=0.6, pan=0.0), 512,
+	pluck_(f5, rev=0.6, pan=0.0), 0,
+	pluck_(a5, rev=0.6, pan=0.0), 0,
+	pluck_(c5, rev=0.6, pan=0.0), 512
 ) >> snd5
-loop("synctest_a",
-	pluck_(a6, rev=0.6, pan=0.0), 100,
+
+
+loop("synctest_a", pluck_(a6, rev=0.6, pan=0.0), 100,
 	pluck_(e2, rev=0.6, pan=0.0), 200,
 	pluck_(c5, rev=0.6, pan=0.0), 100,
 	pluck_(f5, rev=0.6, pan=0.0), 100	
-) >> mjust("dsf", pitch_mod(0)) >> snd1 
+) >> smap(pitch_mod(-8)) >> snd1 
 
 
 
@@ -58,19 +72,50 @@ loop("some_loop",
 ) >> snd2
 
 loop("some_loop2",
-	pluck_(a4, gain=0.8, rev=0.3, cutoff=a4, pan=0.0), 1024,
+	pluck_(a4, gain=0.8, rev=0.3, cutoff=a4, pan=0.0), 0,
 	pluck_(e3, gain=0.8, cutoff=e5, pan=0.0), 1024,
 	pluck_(f4, gain=0.8, rev=0.6, cutoff=c7, pan=0.0), 1024,
 	pluck_(c4, gain=0.8, cutoff=c8, pan=0.0), 1024
 ) >> snd4
 
 loop("beat",
-	sample_("sn", "3", gain=0.8, speed=0.7, pan=0.0, cutoff=5000, rev=0.1), 1024,
-	sample_("bd", "1", gain=1.0, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 1024
+	sample_("sn", "3", gain=1.8, speed=0.7, pan=0.0, cutoff=5000, rev=0.1), 1024,
+	sample_("bd", "1", gain=1.3, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 1024
 ) >> snd1
 
+silence()
 
 get_by_id("beat").sync(get_by_id("some_loop2"))
-get_by_id("beat").sync(get_by_id("some_loop"))
 
-silence()
+# these don't work yet
+
+graph("markov",
+	node(1, sample_("sn", "3", gain=1.8, speed=0.7, pan=0.0, cutoff=5000, rev=0.1)),
+	edge(1,2, dur=128, prob=50),
+	edge(1,3, dur=128, prob=50),
+	node(2, sample_("bd", "3", gain=1.8, speed=0.7, pan=0.0, cutoff=5000, rev=0.1)),
+	edge(2,3, dur=128),
+	node(3, sample_("sn", "3", gain=1.8, speed=0.7, pan=0.0, cutoff=5000, rev=0.1)),	
+	edge(3,1,dur=128)
+) >> chance_map(
+	none(),
+	(20, pitch_mod(1)),
+	(20, pitch_mod(-1)
+) >> snd1
+
+just("simple",
+	sine_(f3, dur=64), 128 
+) >> poisson_map(lambda = 20,
+     		 cycle = 20, 
+		 pitch_mod(1), 
+		 trans_mod=bla(...)
+) >> snd1 
+
+just("simple",
+	sine_(f3, dur=64), 128 
+) >> loop_map(pitch_mod(1),
+	      pitch_mod(2)
+	    )
+) >> snd1 
+
+

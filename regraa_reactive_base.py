@@ -6,6 +6,11 @@ class event:
         self.ntp_timestamp = 0
         self.content = None
 
+class chord(event):
+    def __init__(self, *args):
+        event.__init__(self)
+        self.content = args
+    
 class abstract_event_modifier:
     def __init__(self, destructive = False):
         self.modifier = None
@@ -104,6 +109,14 @@ class abstract_observable(subscribeable):
         # generate next event in sequence
         raise NotImplementedError()    
 
+def is_chord(event):
+        try:
+            type(event).mro().index(chord)
+        except ValueError:           
+            return False
+        return True
+
+    
 # class that generates a sequence of events, triggered by scheduler    
 class schedulable_observable(abstract_observable):
     def __init__(self):
@@ -139,7 +152,10 @@ class schedulable_observable(abstract_observable):
         
         # equip event with ntp timestamp in case we want to use it with osc ...
         current_event.ntp_timestamp = scheduler.get_timestamp(logical_time)
-
+        if is_chord(current_event):
+            for sub_event in current_event.content:
+                sub_event.ntp_timestamp = current_event.ntp_timestamp
+        
         # push event to subscriber line !
         self.push_event(current_event)
 

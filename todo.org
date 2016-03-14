@@ -35,8 +35,14 @@
   CLOSED: [2016-03-14 Mo 11:43]
   - CLOSING NOTE [2016-03-14 Mo 11:43] \\
     basically done, now it needs to be fixed
-* TODO fix repeated play for sync mechanism
-* TODO chords (in the widest sense) multi-event objects 
+* DONE fix repeated play for sync mechanism
+  CLOSED: [2016-03-14 Mo 13:46]
+  - CLOSING NOTE [2016-03-14 Mo 13:46] \\
+    now possible to clean scheduler
+* DONE chords (in the widest sense) multi-event objects 
+  CLOSED: [2016-03-14 Mo 14:39]
+  - CLOSING NOTE [2016-03-14 Mo 14:39] \\
+    added ...
   loop("cprog",
       chord(
          buzz_(),
