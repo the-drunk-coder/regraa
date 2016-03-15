@@ -41,12 +41,14 @@ class synth_sound_event(sound_event):
         if type(cutoff) is regraa_pitch:
             self.cutoff = cutoff.pitch.frequency
         else:
-            self.cutoff = cutoff
-        if(rev > 0.0):
-            self.synth_name = self.synth_name + "rev"
+            self.cutoff = cutoff        
     def get_osc_bundle(self):
-        message = sc_client.build_message("/s_new", self.synth_name, -1, 0, 1,
-                          "gain", self.gain,
+        if(self.reverb > 0.0):
+            current_synth_name = self.synth_name + "rev"
+        else:
+            current_synth_name = self.synth_name
+        message = sc_client.build_message("/s_new", current_synth_name, -1, 0, 1,
+                          "gain", max(0.0, min(self.gain,  1.1)),
                           "a", self.attack / 1000,
                           "d", self.decay / 1000,
                           "s", self.sustain / 1000,
@@ -67,13 +69,17 @@ class sample_sound_event(synth_sound_event):
         self.start = start
         sc_client.register_sample(self.folder, self.name)
     def get_osc_bundle(self):
-        message = sc_client.build_message("/s_new", self.synth_name, -1, 0, 1,
+        if(self.reverb > 0.0):
+            current_synth_name = self.synth_name + "rev"
+        else:
+            current_synth_name = self.synth_name
+        message = sc_client.build_message("/s_new", current_synth_name, -1, 0, 1,
                                            "bufnum", sc_client.samples[self.folder + ":" + self.name],
                                            "speed", self.speed,
                                            "rev", self.reverb,
                                            "pan", self.pan,
                                            "cutoff", self.cutoff,
-                                           "gain", self.gain,
+                                           "gain", max(0.0, min(self.gain,  1.1)),
                                            "start", self.start,
                                            "dur", self.dur,
                                            "a", self.attack / 1000,
@@ -86,9 +92,13 @@ class tuned_synth_sound_event(synth_sound_event, tuned_sound_event):
         tuned_sound_event.__init__(self, args[0], gain = gain, dur = dur)
         synth_sound_event.__init__(self, gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)        
     def get_osc_bundle(self):
-        message = sc_client.build_message("/s_new", self.synth_name, -1, 0, 1,
+        if(self.reverb > 0.0):
+            current_synth_name = self.synth_name + "rev"
+        else:
+            current_synth_name = self.synth_name
+        message = sc_client.build_message("/s_new", current_synth_name, -1, 0, 1,
                           "freq", self.freq,
-                          "gain", self.gain,
+                          "gain", max(0.0, min(self.gain,  1.1)),
                           "a", self.attack / 1000,
                           "d", self.decay / 1000,
                           "s", self.sustain / 1000,

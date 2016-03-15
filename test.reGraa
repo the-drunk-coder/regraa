@@ -1,57 +1,69 @@
 # here is where the magic starts
-just("simple", sine_(f3, dur=64), 128) >> snd3
+just("simple", pluck_(f4, dur=164), 512) \
+>> just_map(wrap(add("pitch", -5), f4, f5)) >> snd3
+
+just("simple", pluck_(c4, dur=256), 128) \
+>> just_map(brownian("pitch", 3))>> snd3
+
+loop("beat", sample_("bd","5"), 512,
+	     sample_("bd","3"), 512)\
+>> just_map(brownian("pan", 0.2)) >> snd1
+
 
 loop("some_other_loop",
-	sine_(f7, rev=0.6, gain=0.08), 150,
-	sine_(e4, gain=0.01), 150,
-	sine_(a5, gain=0.01), 150
-) >> snd6
+	buzz_(f2, gain=0.1, cutoff=f4), 450,
+	buzz_(e2, gain=0.1, cutoff=e4), 225,
+	buzz_(a2, gain=0.1, cutoff=a4), 225
+) >> just_map(add("gain", 0.5)) \
+>> just_map(add("reverb", 0.6)) \
+>> snd6
 
 loop("freq_loop",
 	sine_(500, rev=0.6, pan=0.0), 512,
 	sine_(600, pan=0.0), 512,
-	sine_(700, pan=1.0), 
-)
+	sine_(700, pan=1.0), 512
+) >> snd1
 
-get_by_id("freq_loop").start()
+get_by_id("beat").sync(get_by_id("some_other_loop"))
+get_by_id("beat").sync(get_by_id("plucky"))
 
 silence()
 
-loop("plucky",
+loop("plucky2",
 	chord(
-            pluck_(a4, rev=0.6, pan=0.0),
-	    pluck_(c4, rev=0.6, pan=0.0),
-            pluck_(e4, rev=0.6, pan=0.0)
-	), 512, 
+            pluck_(a4, rev=0.6, pan=0.0),	   
+            pluck_(c4, rev=0.6, pan=0.0)
+	), 128, 
 	chord(
 	    pluck_(f5, rev=0.6, pan=0.0), 
-	    pluck_(a5, rev=0.6, pan=0.0),
-	    pluck_(c5, rev=0.6, pan=0.0)
-	), 512
-) >> snd5
+	    pluck_(e6, rev=0.6, pan=0.0)
+	), 128
+) >> snd1
 
 loop("plucky",
-	pluck_(a4, rev=0.6, pan=0.0), 0,
-	pluck_(c4, rev=0.6, pan=0.0), 0,
-	pluck_(e4, rev=0.6, pan=0.0), 512,
-	pluck_(f5, rev=0.6, pan=0.0), 0,
-	pluck_(a5, rev=0.6, pan=0.0), 0,
-	pluck_(c5, rev=0.6, pan=0.0), 512
+	pluck_(a4, rev=0.6, pan=0.0), 112,
+	pluck_(c4, rev=0.6, pan=0.0), 113,
+	pluck_(e4, rev=0.6, pan=0.0), 450,
+	pluck_(f5, rev=0.6, pan=0.0), 112,
+	pluck_(a5, rev=0.6, pan=0.0), 113,
+	pluck_(c5, rev=0.6, pan=0.0), 450
 ) >> snd5
 
 
-loop("synctest_a", pluck_(a6, rev=0.6, pan=0.0), 100,
+loop("synctest_a",
+	pluck_(a6, rev=0.6, pan=0.0), 100,
 	pluck_(e2, rev=0.6, pan=0.0), 200,
 	pluck_(c5, rev=0.6, pan=0.0), 100,
 	pluck_(f5, rev=0.6, pan=0.0), 100	
-) >> smap(pitch_mod(-8)) >> snd1 
+) >> snd1 
 
 
 
 silence()
 
 loop("beat",
-	 sample_("bd", "1", gain=1.0, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512
+	 sample_("bd", "4", gain=0.5, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512,
+	 	 sample_("sn", "2", gain=0.3, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512
 ) >> snd1
 
 

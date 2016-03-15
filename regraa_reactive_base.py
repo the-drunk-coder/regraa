@@ -12,17 +12,28 @@ class chord(event):
         self.content = args
     
 class abstract_event_modifier:
-    def __init__(self, destructive = False):
-        self.modifier = None
+    def __init__(self, modifier=None, destructive=False):
+        self.modifier = modifier
         self.destructive = destructive
-    def apply_to(self, event):        
+    def apply_to(self, raw_event):
         if not self.destructive:
-            return self.modify_event(copy.deepcopy(event))
+            cooked_event = copy.deepcopy(raw_event)
         else:
-            return self.modify_event(event)
+            cooked_event = event
+        if self.modifier is not None:
+            #print("applying: " + str(self.modifier))
+            self.modifier.apply_to(cooked_event)
+        return self.modify_event(cooked_event)        
     def modify_event(self, event):
         raise NotImplementedError()
-                
+    def is_modifier(self, param):        
+        try:
+            type(param).mro().index(abstract_event_modifier)
+        except ValueError:           
+            return False
+        return True
+
+    
 class transition:
     def __init__(self, duration):
         self.duration = duration
