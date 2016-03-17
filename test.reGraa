@@ -1,12 +1,12 @@
 # here is where the magic starts
-just("simple", pluck_(f4, dur=180), 200) \
->> just_map(wrap(brownian("pitch", 4), f4, f6), non()) \
+just("simple", pluck_(f4, dur=80), 100) \
+>> just_map(wrap(brownian("pitch", -1), f2, f5), none()) \
 >> snd3
 
 silence()
 
 just("simple", pluck_(c4, dur=256), 128) \
->> just_map(brownian("pitch", 3))>> snd3
+>> just_map(brownian("pitch", 3), none())>> snd3
 
 loop("beat", sample_("bd","5"), 512,
 	     sample_("bd","3"), 512)\

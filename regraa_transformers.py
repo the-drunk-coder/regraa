@@ -3,29 +3,42 @@ import regraa_constants
 import random
 import math
 
-class regraa_universal_modifier(abstract_modifier):
-    def __init__(self, modifier=None, param="", destructive=False):
-        abstract_modifier.__init__(self, modifier=modifier, destructive=destructive)        
+class regraa_universal_modifier():
+    def __init__(self, modifier=None, param="", destructive=False):        
         self.value = None
-        self.param = param    
+        self.param = param
+        self.modifier = modifier
+        self.destructive = destructive
+    def apply_to(self, raw_entity):
+        if not self.destructive:
+            cooked_entity = copy.deepcopy(raw_entity)
+        else:
+            cooked_entity = entity
+        if self.modifier is not None:
+            cooked_entity = self.modifier.apply_to(cooked_entity)
+        return self.modify_entity(cooked_entity)        
     def modify_entity(self, entity):
         # in case of first arriving entity or destructive modification
-        if (self.value is None and not self.destructive) or self.destructive :
-            self.value = getattr(entity, self.param)        
+        if (self.value is None and not self.destructive) or self.destructive or self.modifier is not None:            
+            self.value = getattr(entity, self.param)
+        #print(str(type(self)) + " " + str(self.value.pitch))
         # special case: pitch/freq duality ...
+        self.value = self.calculate_value()
+        if not self.destructive and self.modifier != None:
+            self.modifier.value = self.value            
         if self.param is "pitch":
             if hasattr(entity, "pitch"):
-                entity.set_pitch(self.calculate_value())
+                entity.set_pitch(self.value)
             elif hasattr(entity, "freq"):
-                entity.freq = self.calculate_value()
+                entity.freq = self.value
         else:
             if hasattr(entity, self.param):
-                setattr(entity, self.param, self.calculate_value())
+                setattr(entity, self.param, self.value)
         return entity
     def calculate_value(self):
         raise NotImplementedError
 
-class non(abstract_modifier):
+class none():
     def apply_to(self, entity):
         return entity
     
@@ -64,7 +77,7 @@ class wrap(regraa_universal_modifier):
         regraa_universal_modifier.__init__(self,param=modifier.param, modifier=modifier, destructive=destructive)
         self.lower = lower
         self.upper = upper
-    def calculate_value(self):        
+    def calculate_value(self):
         if self.value < self.lower:
             self.value = self.upper
             return self.upper

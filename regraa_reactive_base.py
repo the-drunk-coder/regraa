@@ -15,28 +15,15 @@ class chord(event):
         event.__init__(self)
         self.content = args
     
-class abstract_modifier:
-    def __init__(self, modifier=None, destructive=False):
-        self.modifier = modifier
-        self.destructive = destructive
-    def apply_to(self, raw_entity):
-        if not self.destructive:
-            cooked_entity = copy.deepcopy(raw_entity)
-        else:
-            cooked_entity = entity
-        if self.modifier is not None:
-            cooked_entity = self.modifier.apply_to(cooked_entity)
-        return self.modify_entity(cooked_entity)        
-    def modify_entity(self, entity):
-        raise NotImplementedError()
-    
+"""
 def is_modifier(param):        
     try:
         type(param).mro().index(abstract_modifier)
     except ValueError:           
         return False
     return True
-            
+"""
+
 # handles subscriptions for just about anything ...
 class subscribeable:
     def __init__(self):
