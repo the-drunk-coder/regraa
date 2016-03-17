@@ -1,47 +1,50 @@
 from music21 import pitch, duration
+import copy
 
 # ensure certain pitch behaviour
 class regraa_pitch():    
     def __init__(self, pitch_string):
         self.pitch = pitch.Pitch(pitch_string)                   
     def __add__(self, other):
+        new_pitch = copy.deepcopy(self)
         if type(other) is int:
-            self.pitch.midi = self.pitch.midi + other
+            new_pitch.pitch.midi = self.pitch.midi + other
         if type(other) is float:
             # calculate semitones and microtones
             semitones = int(other)
             micro_ratio = other - semitones
             microtones = int(100 * micro_ratio)
             if semitones > 0:
-                self.pitch.midi += semitones                        
+                new_pitch.pitch.midi += semitones                        
             if microtones > 0:
-                old_cents = self.pitch.microtone.cents
+                old_cents = new_pitch.pitch.microtone.cents
                 new_cents = old_cents + microtones
                 if new_cents >= 100:
-                    self.pitch.microtone = 0
-                    self.pitch.midi += 1
+                    new_pitch.pitch.microtone = 0
+                    new_pitch.pitch.midi += 1
                     new_cents -= 100
-                self.pitch.microtone = new_cents            
-        return self
+                new_pitch.pitch.microtone = new_cents            
+        return new_pitch
     def __sub__(self, other):
+        new_pitch = copy.deepcopy(self)
         if type(other) is int:
-            self.pitch.midi -= other
+            new_pitch.pitch.midi -= other
         if type(other) is float:
             # calculate semitones and microtones
             semitones = int(other)
             micro_ratio = other - semitones
             microtones = int(100 * micro_ratio)
             if semitones > 0:
-                self.pitch.midi -= semitones
+                new_pitch.pitch.midi -= semitones
             if microtones > 0:
-                old_cents = self.pitch.microtone.cents                
+                old_cents = new_pitch.pitch.microtone.cents                
                 new_cents = old_cents - microtones
                 if new_cents <= -100:
-                    self.pitch.microtone = 0
-                    self.pitch.midi -= 1
+                    new_pitch.pitch.microtone = 0
+                    new_pitch.pitch.midi -= 1
                     new_cents += 100
-                self.pitch.microtone = new_cents                                                          
-        return self
+                new_pitch.pitch.microtone = new_cents                                                          
+        return new_pitch
     def __hash__(self):
         return str(self).__hash__()
     def __lt__(self, other):
