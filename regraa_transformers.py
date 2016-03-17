@@ -3,20 +3,15 @@ import regraa_constants
 import random
 import math
 
-class regraa_universal_modifier(abstract_event_modifier, abstract_transition_modifier):
-    def __init__(self, param="", destructive=False):
-        abstract_event_modifier.__init__(self, destructive=destructive)
-        abstract_transition_modifier.__init__(self, destructive=destructive)
+class regraa_universal_modifier(abstract_modifier):
+    def __init__(self, modifier=None, param="", destructive=False):
+        abstract_modifier.__init__(self, modifier=modifier, destructive=destructive)        
         self.value = None
-        self.param = param
-    def modify_event(self, event):
-        return self.inner_modify(event)
-    def modify_transition(self, transition):
-        return self.inner_modify(transition)
-    def inner_modify(self, entity):
+        self.param = param    
+    def modify_entity(self, entity):
         # in case of first arriving entity or destructive modification
-        #if (self.value is None and not self.destructive) or self.destructive :
-        self.value = getattr(entity, self.param)        
+        if (self.value is None and not self.destructive) or self.destructive :
+            self.value = getattr(entity, self.param)        
         # special case: pitch/freq duality ...
         if self.param is "pitch":
             if hasattr(entity, "pitch"):
@@ -30,7 +25,7 @@ class regraa_universal_modifier(abstract_event_modifier, abstract_transition_mod
     def calculate_value(self):
         raise NotImplementedError
 
-class non(abstract_event_modifier, abstract_transition_modifier):
+class non(abstract_modifier):
     def apply_to(self, entity):
         return entity
     
@@ -64,27 +59,20 @@ class sinestretch(regraa_universal_modifier):
         self.value = (abs_sin * stretch_range) + self.min_bound        
         return self.value
     
-class wrap(abstract_event_modifier):
+class wrap(regraa_universal_modifier):
     def __init__(self, modifier, lower, upper, destructive=False):
-        abstract_event_modifier.__init__(self, modifier=modifier, destructive=destructive)
-        self.param = modifier.param
+        regraa_universal_modifier.__init__(self,param=modifier.param, modifier=modifier, destructive=destructive)
         self.lower = lower
         self.upper = upper
-    def modify_event(self, event):
-        if hasattr(event, self.param):
-            current_value = getattr(event, self.param)
-            if current_value > self.upper:
-                print("case larger")
-                current_value = self.lower
-            elif current_value < self.lower:
-                print("case smaller")
-                current_value = self.upper
-            if self.param is "pitch":
-                event.set_pitch(current_value)
-            else:
-                setattr(event, self.param, current_value)        
-        return event
-
+    def calculate_value(self):
+        print(self.value)
+        if self.value < self.lower:
+            return self.upper
+        elif self.value > self.upper:
+            return self.lower
+        else:
+            return self.value
+        
 
 regraa_transformers = {}
         
