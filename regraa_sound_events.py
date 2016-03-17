@@ -131,7 +131,7 @@ class midi_(tuned_sound_event):
         self.latency = 0
     def set_latency(self, latency):
         self.latency = latency
-    def play(*args, **kwargs):        
+    def play(self, *args, **kwargs):        
         current_pitch = self.pitch.pitch.midi
         if current_pitch not in notes_on:
             pg_time.wait(self.latency)

@@ -1,6 +1,12 @@
 # here is where the magic starts
-just("simple", pluck_(f4, dur=164), 512) \
->> just_map(wrap(add("pitch", -5), f4, f5)) >> snd3
+just("simple", midi_(f4, dur=64), 200) \
+>> just_map(brownian("pitch", 1)) >> snd3
+
+
+just("simple", midi_(f7, dur=64), 200) \
+>> just_map(add("pitch", -4)) >> snd3
+
+silence()
 
 just("simple", pluck_(c4, dur=256), 128) \
 >> just_map(brownian("pitch", 3))>> snd3
