@@ -6,50 +6,38 @@ class event:
         self.ntp_timestamp = 0
         self.content = None
 
+class transition:
+    def __init__(self, duration):
+        self.duration = duration
+        
 class chord(event):
     def __init__(self, *args):
         event.__init__(self)
         self.content = args
     
-class abstract_event_modifier:
+class abstract_modifier:
     def __init__(self, modifier=None, destructive=False):
         self.modifier = modifier
         self.destructive = destructive
-    def apply_to(self, raw_event):
+    def apply_to(self, raw_entity):
         if not self.destructive:
-            cooked_event = copy.deepcopy(raw_event)
+            cooked_entity = copy.deepcopy(raw_entity)
         else:
-            cooked_event = event
+            cooked_entity = entity
         if self.modifier is not None:
             #print("applying: " + str(self.modifier))
-            self.modifier.apply_to(cooked_event)
-        return self.modify_event(cooked_event)        
-    def modify_event(self, event):
-        raise NotImplementedError()
-    def is_modifier(self, param):        
-        try:
-            type(param).mro().index(abstract_event_modifier)
-        except ValueError:           
-            return False
-        return True
-
-    
-class transition:
-    def __init__(self, duration):
-        self.duration = duration
-        
-class abstract_transition_modifier:
-    def __init__(self, destructive = False):
-        self.modifier = None
-        self.destructive = destructive
-    def apply_to(self, transition):        
-        if not self.destructive:
-            return self.modify_transition(copy.deepcopy(transition))
-        else:
-            return self.modify_transition(transition)
-    def modify_transition(self, transition):
+            self.modifier.apply_to(cooked_entity)
+        return self.modify_entity(cooked_entity)        
+    def modify_entity(self, entity):
         raise NotImplementedError()
     
+def is_modifier(param):        
+    try:
+        type(param).mro().index(abstract_modifier)
+    except ValueError:           
+        return False
+    return True
+            
 # handles subscriptions for just about anything ...
 class subscribeable:
     def __init__(self):

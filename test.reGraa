@@ -1,10 +1,6 @@
 # here is where the magic starts
-just("simple", midi_(f4, dur=64), 200) \
->> just_map(brownian("pitch", 1)) >> snd3
-
-
 just("simple", pluck_(f5, dur=180), 200) \
->> just_map(non(),add("duration", 300)) >> snd3
+>> just_map(add("pitch", 5), non()) >> snd3
 
 silence()
 
