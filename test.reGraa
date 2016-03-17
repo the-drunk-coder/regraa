@@ -1,6 +1,7 @@
 # here is where the magic starts
-just("simple", pluck_(f5, dur=180), 200) \
->> just_map(wrap(add("pitch", 4), f4, f6), non()) >> snd3
+just("simple", pluck_(f4, dur=180), 200) \
+>> just_map(wrap(brownian("pitch", 4), f4, f6), non()) \
+>> snd3
 
 silence()
 

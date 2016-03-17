@@ -64,11 +64,12 @@ class wrap(regraa_universal_modifier):
         regraa_universal_modifier.__init__(self,param=modifier.param, modifier=modifier, destructive=destructive)
         self.lower = lower
         self.upper = upper
-    def calculate_value(self):
-        print(self.value)
+    def calculate_value(self):        
         if self.value < self.lower:
+            self.value = self.upper
             return self.upper
         elif self.value > self.upper:
+            self.value = self.lower
             return self.lower
         else:
             return self.value

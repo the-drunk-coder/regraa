@@ -25,8 +25,7 @@ class abstract_modifier:
         else:
             cooked_entity = entity
         if self.modifier is not None:
-            #print("applying: " + str(self.modifier))
-            self.modifier.apply_to(cooked_entity)
+            cooked_entity = self.modifier.apply_to(cooked_entity)
         return self.modify_entity(cooked_entity)        
     def modify_entity(self, entity):
         raise NotImplementedError()
