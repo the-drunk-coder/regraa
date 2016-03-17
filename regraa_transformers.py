@@ -30,6 +30,10 @@ class regraa_universal_modifier(abstract_event_modifier, abstract_transition_mod
     def calculate_value(self):
         raise NotImplementedError
 
+class non(abstract_event_modifier, abstract_transition_modifier):
+    def apply_to(self, entity):
+        return entity
+    
 class add(regraa_universal_modifier):
     def __init__(self, param, increment, destructive=False):
         regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
@@ -84,27 +88,27 @@ class wrap(abstract_event_modifier):
 
 regraa_transformers = {}
         
-def just_map(event_modifier, tmod=None, id=None):
+def just_map(event_modifier, transition_modifier, id=None):
     """ Map single event modifier to stream. """
     if id is not None and id in regraa_transformers:
-        current_object = regraa_transformers[id].update(event_modifier, tmod)
+        current_object = regraa_transformers[id].update(event_modifier, transition_modifier)
         if regraa_constants.rebuild_chain:
             current_object.clear_subscribers()
         return current_object
     else:
-        new_obj = _just_map(event_modifier, tmod)
+        new_obj = _just_map(event_modifier, transition_modifier)
         regraa_transformers[id] = new_obj
         return new_obj
 
         
 class _just_map(abstract_observer):
-    def __init__(self, event_modifier, tmod):
+    def __init__(self, event_modifier, transition_modifier):
         abstract_observer.__init__(self)
         self.step = 0
-        self.update(event_modifier, tmod)
-    def update(self, event_modifier, tmod):
+        self.update(event_modifier, transition_modifier)
+    def update(self, event_modifier, transition_modifier):
         self.event_modifier = event_modifier
-        self.tmod = tmod
+        self.transition_modifier = transition_modifier
         return self
     def on_event(self, event):
         if hasattr(self.event_modifier, "step"):
@@ -112,10 +116,10 @@ class _just_map(abstract_observer):
         self.step += 1
         return self.event_modifier.apply_to(event)
     def on_transition(self, transition):
-        if self.tmod is not None:
-            if hasattr(self.tmod, "step"):
-                self.tmod.step = self.step
-            return self.tmod.apply_to(transition)
+        if self.transition_modifier is not None:
+            if hasattr(self.transition_modifier, "step"):
+                self.transition_modifier.step = self.step
+            return self.transition_modifier.apply_to(transition)
         else:
             return transition
         
