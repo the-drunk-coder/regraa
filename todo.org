@@ -17,7 +17,8 @@
 * TODO test-cases für sound events
 * TODO test-cases, überhaupt 
 * TODO doku, as usual 
-* TODO modificators 
+* DONE modificators 
+  CLOSED: [2016-03-17 Do 17:10]
 * DONE objekte im inaktiven zustand erstellen
   CLOSED: [2016-03-11 Fr 18:03]
   - CLOSING NOTE [2016-03-11 Fr 18:03] \\
@@ -58,3 +59,4 @@
   CLOSED: [2016-03-14 Mo 11:51]
   - CLOSING NOTE [2016-03-14 Mo 11:51] \\
     done !
+* TODO unifiy event- and transition modifier
