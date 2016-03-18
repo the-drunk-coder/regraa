@@ -5,12 +5,12 @@ just("simple", pluck_(f4, dur=80), 100) \
 
 silence()
 
-just("simple", pluck_(c4, dur=256), 128) \
->> just_map(brownian("pitch", 3), none())>> snd3
+just("simple", buzz_(c2, dur=256, gain=0.1, cutoff=c5), 256) \
+>> just_map(wrap(brownian("pitch", 3), c1, c3), none()) >> snd3
 
 loop("beat", sample_("bd","5"), 512,
-	     sample_("bd","3"), 512)\
->> just_map(brownian("pan", 0.2)) >> snd1
+	     sample_("sn","3"), 512)\
+>> just_map(none(),none()) >> snd1
 
 
 loop("some_other_loop",
@@ -28,7 +28,7 @@ loop("freq_loop",
 ) >> snd1
 
 get_by_id("beat").sync(get_by_id("some_other_loop"))
-get_by_id("beat").sync(get_by_id("plucky"))
+get_by_id("beat").sync(get_by_id("simple"))
 
 silence()
 
@@ -73,9 +73,9 @@ loop("beat",
 
 loop("drybell",
 	risset_(a8, rev=0.6, pan=0.0, dur=1024), 1024,
-	risset_(c4, rev=0.0, pan=0.0, dur=1024), 1024,	
-	risset_(e5, pan=0.0, dur=1024), 1024,
-	risset_(f5, pan=1.0, dur=1024), 1024
+	risset_(c8, rev=0.0, pan=0.0, dur=1024), 1024,	
+	risset_(e8, pan=0.0, dur=1024), 1024,
+	risset_(f8, pan=1.0, dur=1024), 1024
 ) >> snd1
 
 

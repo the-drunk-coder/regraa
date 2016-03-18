@@ -41,6 +41,17 @@ class regraa_universal_modifier():
 class none():
     def apply_to(self, entity):
         return entity
+
+class mute():
+    def __init__(self, destructive=False):
+        self.destructive = destructive
+    def apply_to(self, raw_entity):
+        if not self.destructive:
+            cooked_entity = copy.deepcopy(raw_entity)
+        else:
+            cooked_entity = entity
+        cooked_entity.gain = 0.0
+        return cooked_entity
     
 class add(regraa_universal_modifier):
     def __init__(self, param, increment, destructive=False):
@@ -84,6 +95,21 @@ class wrap(regraa_universal_modifier):
         elif self.value > self.upper:
             self.value = self.lower
             return self.lower
+        else:
+            return self.value
+
+class bounds(regraa_universal_modifier):
+    def __init__(self, modifier, lower, upper, destructive=False):
+        regraa_universal_modifier.__init__(self,param=modifier.param, modifier=modifier, destructive=destructive)
+        self.lower = lower
+        self.upper = upper
+    def calculate_value(self):
+        if self.value < self.lower:
+            self.value = self.lower
+            return self.lower
+        elif self.value > self.upper:
+            self.value = self.upper
+            return self.upper
         else:
             return self.value
         
