@@ -28,15 +28,9 @@ class regraa_universal_modifier():
         if self.store:
             self.value = temp_value
         if not self.destructive and self.modifier != None:
-            self.modifier.value = temp_value
-        if self.param is "pitch":
-            if hasattr(entity, "pitch"):
-                entity.set_pitch(temp_value)
-            elif hasattr(entity, "freq"):
-                entity.freq = temp_value
-        else:
-            if hasattr(entity, self.param):
-                setattr(entity, self.param, temp_value)
+            self.modifier.value = temp_value        
+        if hasattr(entity, self.param):
+            setattr(entity, self.param, temp_value)
         return entity
     def calculate_value(self):
         raise NotImplementedError
@@ -110,7 +104,6 @@ class bounds(regraa_universal_modifier):
         else:
             return self.value
         
-
 regraa_transformers = {}
         
 def just_map(event_modifier, transition_modifier, id=None):

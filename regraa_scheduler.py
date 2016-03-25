@@ -11,7 +11,7 @@ start_time = time.time()
 now = 0
 
 # server latency for scsynth (in ms)
-latency = 40
+latency = 60
 
 active = False
 timestamp_dictionary = {}

@@ -21,14 +21,8 @@ class sound_event(event):
 class tuned_sound_event(sound_event):
     def __init__(self, *args, gain=0.5, dur=256):
         sound_event.__init__(self, gain = gain, dur = dur)
-        if type(args[0]) is regraa_pitch:
-            self.set_pitch(args[0])                             
-        else:
-            self.freq = float(args[0])
-    def set_pitch(self, new_pitch):
-        self.pitch = copy.deepcopy(new_pitch)
-        self.freq = float(self.pitch.pitch.frequency)
-
+        self.pitch = args[0]
+    
 class synth_sound_event(sound_event):
     def __init__(self, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         sound_event.__init__(self, gain = gain, dur = dur)        
@@ -36,26 +30,27 @@ class synth_sound_event(sound_event):
         self.attack = a
         self.decay = d
         self.release = r
-        self.reverb = rev
+        self.rev = rev
         self.pan = pan
-        if type(cutoff) is regraa_pitch:
-            self.cutoff = cutoff.pitch.frequency
-        else:
-            self.cutoff = cutoff        
+        self.cutoff = cutoff
     def get_osc_bundle(self):
-        if(self.reverb > 0.0):
+        if(self.rev > 0.0):
             current_synth_name = self.synth_name + "rev"
         else:
             current_synth_name = self.synth_name
+        if type(self.cutoff) is regraa_pitch:
+            co_freq = self.cutoff.pitch.frequency
+        else:
+            co_freq = self.cutoff
         message = sc_client.build_message("/s_new", current_synth_name, -1, 0, 1,
                           "gain", max(0.0, min(self.gain,  1.1)),
                           "a", self.attack / 1000,
                           "d", self.decay / 1000,
                           "s", self.sustain / 1000,
                           "r", self.release / 1000,
-                          "rev", self.reverb,
+                          "rev", self.rev,
                           "pan", self.pan,
-                          "cutoff", self.cutoff)
+                          "cutoff", co_freq)
         return sc_client.build_bundle(self.ntp_timestamp, message)
 # end synth_sound_event
 
@@ -69,16 +64,20 @@ class sample_sound_event(synth_sound_event):
         self.start = start
         sc_client.register_sample(self.folder, self.name)
     def get_osc_bundle(self):
-        if(self.reverb > 0.0):
+        if(self.rev > 0.0):
             current_synth_name = self.synth_name + "rev"
         else:
             current_synth_name = self.synth_name
+        if type(self.cutoff) is regraa_pitch:
+            co_freq = self.cutoff.pitch.frequency
+        else:
+            co_freq = self.cutoff
         message = sc_client.build_message("/s_new", current_synth_name, -1, 0, 1,
                                            "bufnum", sc_client.samples[self.folder + ":" + self.name],
                                            "speed", self.speed,
-                                           "rev", self.reverb,
+                                           "rev", self.rev,
                                            "pan", self.pan,
-                                           "cutoff", self.cutoff,
+                                           "cutoff", co_freq,
                                            "gain", max(0.0, min(self.gain,  1.1)),
                                            "start", self.start,
                                            "dur", self.dur,
@@ -92,20 +91,28 @@ class tuned_synth_sound_event(synth_sound_event, tuned_sound_event):
         tuned_sound_event.__init__(self, args[0], gain = gain, dur = dur)
         synth_sound_event.__init__(self, gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)        
     def get_osc_bundle(self):
-        if(self.reverb > 0.0):
+        if(self.rev > 0.0):
             current_synth_name = self.synth_name + "rev"
         else:
             current_synth_name = self.synth_name
+        if type(self.cutoff) is regraa_pitch:
+            co_freq = self.cutoff.pitch.frequency
+        else:
+            co_freq = self.cutoff
+        if type(self.pitch) is regraa_pitch:
+            p_freq = self.pitch.pitch.frequency
+        else:
+            p_freq = self.pitch
         message = sc_client.build_message("/s_new", current_synth_name, -1, 0, 1,
-                          "freq", self.freq,
+                          "freq", p_freq,
                           "gain", max(0.0, min(self.gain,  1.1)),
                           "a", self.attack / 1000,
                           "d", self.decay / 1000,
                           "s", self.sustain / 1000,
                           "r", self.release / 1000,
-                          "rev", self.reverb,
+                          "rev", self.rev,
                           "pan", self.pan,
-                          "cutoff", self.cutoff)
+                          "cutoff", co_freq)
         return sc_client.build_bundle(self.ntp_timestamp, message)
 # end tuned_synth_sound_event
             
