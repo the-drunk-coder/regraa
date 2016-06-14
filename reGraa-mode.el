@@ -10,7 +10,7 @@
 (require 'pulse)
 
 (defvar reGraa-events
-  '("snd1" "snd2" "snd3" "snd4" "snd5" "snd6" "snd7" "snd8" "buzz" "sine" "pluck" "midi" "say" "sqr" "risset" "sample"))
+  '("snd1" "snd2" "snd3" "snd4" "snd5" "snd6" "snd7" "snd8" "buzz" "sine" "pluck" "akita" "midi" "say" "sqr" "risset" "sample"))
 
 (defvar reGraa-keywords
       '("just" "loop" "seq" "graph"))
@@ -74,13 +74,13 @@
   )
 
 (defun reGraa-see-output ()
-  "Show haskell output."
+  "Show python output."
   (interactive)
   (when (comint-check-proc reGraa-buffer)
     (delete-other-windows)
-    (split-window-horizontally)
+    (split-window-horizontally)    
     (with-current-buffer reGraa-buffer
-      (let ((window (display-buffer (current-buffer))))
+      (let ((window (display-buffer (current-buffer))))       
 	(goto-char (point-max))
 	(save-selected-window
 	  (set-window-point window (point-max))
@@ -96,6 +96,7 @@
 (defun reGraa-quit ()
   "Quit reGraa."
   (interactive)
+  (reGraa-send-string "akita_quit()")
   (kill-buffer reGraa-buffer)
   (delete-other-windows))
 

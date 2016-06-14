@@ -1,55 +1,68 @@
 # here is where the magic starts
-just("simple", pluck_(f4, dur=80), 100) \
+just("simple", pluck_(g4, dur=80, rev=0.1), 200) \
 >> chance_map(
-   (30, add("pitch", 11), add("duration", 400)),
-   (20, add("pitch", 16), none()),
-) >> just_map(sinestretch("cutoff", 500, 300, 8000), none()) >> snd3
-
-just("simple", pluck_(f4, dur=80), 100) \
+   (50, add("pitch", 6, destructive=True), add("duration", 200)),
+   (50, add("pitch", -6, destructive=True), add("duration", 200)),
+) \
+>> just_map(wrap("pitch", g3, g7), none()) \
 >> snd1
 
-just("simple", sqr_(400, dur=256, gain=0.3, cutoff=1200), 300) \
->> just_map(add("cutoff", 3000),none()) >> snd1
+
+
+just("simple", pluck_(f4, dur=80), 100) \
+>> just_map(brownian("pitch", 1), none()) >> snd1
+
+# towards an akita interface
+just("simple", akita_(), 1001) \
+>> akita1
+
+silence()
+
+just("sqrbs", sqr_(g4, dur=320, a=100, gain=0.4, cutoff=1200), 800) \
+>> chance_map(
+   (15, add("pitch", -6),none()),
+   (20, add("pitch", 16), none())) \
+>> just_map(sinestretch("cutoff", 200, 300, 3000), none()) >> snd1
 
 
 get_by_id("beat").sync(get_by_id("simple"))
 
+get_by_id("simple") | snd3
+
 silence()
 
 loop("simplebass",
-	sqr_(c3, dur=200, gain=0.3, cutoff=c3), 200,
-	sqr_(f3, dur=100, gain=0.3, cutoff=1000), 100,
-	sqr_(a3, dur=200, gain=0.3, cutoff=1000), 200,
-	sqr_(e4, dur=100, gain=0.3, cutoff=1000), 100,
+	sqr_(c2, dur=200, gain=0.3, cutoff=c3, rev=0.3), 180,
+	sqr_(f3, dur=100, gain=0.3, cutoff=1000, rev=0.3), 180,
+	sqr_(a2, dur=200, gain=0.3, cutoff=1000, rev=0.3), 180,
+	sqr_(e4, dur=100, gain=0.3, cutoff=1000, rev=0.3), 180,
 ) \
 >> chance_map(
    (10, mute(), none())
    ) \
->> just_map(sinestretch("cutoff", 1000, 300, 4000), none()) >> snd2
+>> just_map(sinestretch("cutoff", 600, 300, 2000), none()) >> snd2
 
-loop("beat", sample_("bd","5"), 400,
-	     sample_("sn","3"), 400)\
->> just_map(sinestretch("cutoff", 400, 300, 4000), none()) >> snd1
+loop("beat", sample_("bd","2", speed=0.9, gain=1.0), 512,
+	     sample_("sn","3", speed=1.2, gain=1.0), 512)\
+>> just_map(sinestretch("cutoff", 20, 1000, 4000), none()) >> snd3
 
 loop("plucky2",
 	chord(
-            pluck_(a4, rev=0.6, pan=0.0),	   
-            pluck_(c4, rev=0.6, pan=0.0)
-	), 200, 
+            pluck_(a4, gain=0.1, rev=0.1, pan=0.0, cutoff=8000),	   
+            pluck_(c4, gain=0.1, rev=0.0, pan=0.0, cutoff=8000)
+	), 100, 
 	chord(
-	    pluck_(f5, rev=0.6, pan=0.0), 
-	    pluck_(e6, rev=0.6, pan=0.0)
+	    pluck_(f5, gain=0.1, rev=0.0, pan=0.0, cutoff=9000), 
+	    pluck_(e6, gain=0.1, rev=0.0, pan=0.0, cutoff=9000)
 	), 100
-) >> snd3
+) | snd1
 
 
 loop("some_other_loop",
-	buzz_(f2, gain=0.1, cutoff=f4), 450,
- 	buzz_(e2, gain=0.1, cutoff=e4), 225,
-	buzz_(a2, gain=0.1, cutoff=a4), 225
-) >> just_map(add("gain", 0.5)) \
->> just_map(add("reverb", 0.6)) \
->> snd6
+	pluck_(f2, gain=0.1, cutoff=f4), 450,
+ 	pluck_(e2, gain=0.1, cutoff=e4), 225,
+	buzz_(a2, gain=0.8, cutoff=a4), 225
+) >> snd6
 
 loop("freq_loop",
 	sine_(500, rev=0.6, pan=0.0), 512,
@@ -74,20 +87,19 @@ loop("plucky",
 
 
 loop("synctest_a",
-	pluck_(a6, rev=0.6, pan=0.0), 100,
-	pluck_(e2, rev=0.6, pan=0.0), 200,
-	pluck_(c5, rev=0.6, pan=0.0), 100,
-	pluck_(f5, rev=0.6, pan=0.0), 100	
+	pluck_(a6, rev=0.6, pan=0.0), 256,
+	pluck_(e2, rev=0.6, pan=0.0), 256,
+	pluck_(c5, rev=0.6, pan=0.0), 256,
+	pluck_(f5, rev=0.6, pan=0.0), 256	
 ) >> snd1 
-
 
 
 silence()
 
 loop("beat",
-	 sample_("bd", "4", gain=0.5, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512,
-	 	 sample_("sn", "2", gain=0.3, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512
-) >> snd1
+	 sample_("bd", "4", gain=0.9, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512,
+	 sample_("sn", "2", gain=0.9, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512
+) >> snd2
 
 
 
@@ -119,10 +131,6 @@ loop("beat",
 ) >> snd1
 
 silence()
-
-
-
-
 
 
 loop("synctest_a",

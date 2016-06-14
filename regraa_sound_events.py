@@ -10,11 +10,15 @@ from pygame import time as pg_time
 from regraa_pitch import *
 from regraa_reactive_base import *
 import regraa_supercollider_client as sc_client
+import regraa_akita_client as akita_client
+from random import randint 
+import regraa_osc_tools as osc_tools
 
 class sound_event(event):
     def __init__(self, gain=0.5, dur=0):
         self.gain = gain
         self.dur = dur
+        self.additional_latency = 0
     def play():
         raise NotImplementedError
 
@@ -22,7 +26,7 @@ class tuned_sound_event(sound_event):
     def __init__(self, *args, gain=0.5, dur=256):
         sound_event.__init__(self, gain = gain, dur = dur)
         self.pitch = args[0]
-    
+
 class synth_sound_event(sound_event):
     def __init__(self, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
         sound_event.__init__(self, gain = gain, dur = dur)        
@@ -42,7 +46,7 @@ class synth_sound_event(sound_event):
             co_freq = self.cutoff.pitch.frequency
         else:
             co_freq = self.cutoff
-        message = sc_client.build_message("/s_new", current_synth_name, -1, 0, 1,
+        message = osc_tools.build_message("/s_new", current_synth_name, -1, 0, 1,
                           "gain", max(0.0, min(self.gain,  1.1)),
                           "a", self.attack / 1000,
                           "d", self.decay / 1000,
@@ -51,8 +55,34 @@ class synth_sound_event(sound_event):
                           "rev", self.rev,
                           "pan", self.pan,
                           "cutoff", co_freq)
-        return sc_client.build_bundle(self.ntp_timestamp, message)
+        return osc_tools.build_bundle(self.ntp_timestamp, message)
 # end synth_sound_event
+
+class akita_(sound_event):
+    def __init__(self, instance, start=0.0, dur=256, gain=0.2, flippiness=0.0, fuzziness=0.0, rev=0.0, cutoff=20000, q=2, mean_filter_on=0):        
+        sound_event.__init__(self, gain = gain, dur = dur)
+        self.additional_latency = akita_client.akita_add_latency
+        self.instance = instance
+        self.start = start
+        self.flippiness = flippiness
+        self.fuzziness = fuzziness
+        self.rev = rev
+        self.mean_filter_on = mean_filter_on
+        self.q = q
+        self.cutoff = cutoff
+    def get_osc_bundle(self):            
+        message = osc_tools.build_message("/akita/play",
+                                          float(self.start),
+                                          self.dur,
+                                          float(self.gain),
+                                          float(self.rev),
+                                          self.mean_filter_on,
+                                          float(self.q),
+                                          float(self.cutoff),
+                                          float(self.flippiness),
+                                          float(self.fuzziness))        
+        return osc_tools.build_bundle(self.ntp_timestamp, message)
+# end akita_
 
 class sample_sound_event(synth_sound_event):
     def __init__(self, *args, gain=0.5, dur=0, a=4, speed=1.0, start=0.0, r=5, rev=0.0, pan=0.0, cutoff=20000):
@@ -72,7 +102,7 @@ class sample_sound_event(synth_sound_event):
             co_freq = self.cutoff.pitch.frequency
         else:
             co_freq = self.cutoff
-        message = sc_client.build_message("/s_new", current_synth_name, -1, 0, 1,
+        message = osc_tools.build_message("/s_new", current_synth_name, -1, 0, 1,
                                            "bufnum", sc_client.samples[self.folder + ":" + self.name],
                                            "speed", self.speed,
                                            "rev", self.rev,
@@ -83,7 +113,7 @@ class sample_sound_event(synth_sound_event):
                                            "dur", self.dur,
                                            "a", self.attack / 1000,
                                            "d", self.release / 1000)
-        return sc_client.build_bundle(self.ntp_timestamp, message)
+        return osc_tools.build_bundle(self.ntp_timestamp, message)
 # end sample_sound_event()
 
 class tuned_synth_sound_event(synth_sound_event, tuned_sound_event):
@@ -103,7 +133,7 @@ class tuned_synth_sound_event(synth_sound_event, tuned_sound_event):
             p_freq = self.pitch.pitch.frequency
         else:
             p_freq = self.pitch
-        message = sc_client.build_message("/s_new", current_synth_name, -1, 0, 1,
+        message = osc_tools.build_message("/s_new", current_synth_name, -1, 0, 1,
                           "freq", p_freq,
                           "gain", max(0.0, min(self.gain,  1.1)),
                           "a", self.attack / 1000,
@@ -113,7 +143,7 @@ class tuned_synth_sound_event(synth_sound_event, tuned_sound_event):
                           "rev", self.rev,
                           "pan", self.pan,
                           "cutoff", co_freq)
-        return sc_client.build_bundle(self.ntp_timestamp, message)
+        return osc_tools.build_bundle(self.ntp_timestamp, message)
 # end tuned_synth_sound_event
             
 
@@ -132,11 +162,14 @@ atexit.register(del_out)
 # naive note mutex
 notes_on = {}
 
+midi_latency = 135
+
 class midi_(tuned_sound_event):
-    def __init__(self, *args, gain=0.5, dur=256):
+    def __init__(self, *args, gain=0.5, dur=256, portamento=False):
         tuned_sound_event.__init__(self, args[0], gain=gain, dur=dur)
-        self.latency = 0
-    def set_latency(self, latency):
+        self.latency = midi_latency
+        self.portamento = portamento
+    def set_latency(self, latency):        
         self.latency = latency
     def play(self, *args, **kwargs):        
         current_pitch = self.pitch.pitch.midi
@@ -146,7 +179,8 @@ class midi_(tuned_sound_event):
             velocity = int(127 * self.gain)
             midi_out.note_on(current_pitch, velocity)
             pg_time.wait(int(self.dur))
-            midi_out.note_off(current_pitch, velocity)
+            if not self.portamento:
+                midi_out.note_off(current_pitch, velocity)
             del notes_on[current_pitch]        
 
 """ Synthetic sounds, created with the SC3 backend ... """

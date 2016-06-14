@@ -1,6 +1,5 @@
 import socket, atexit, os
-from pythonosc import osc_message_builder
-from pythonosc import osc_bundle_builder
+import regraa_osc_tools as osc_tools
 
 # dict mapping samplename to bufnum
 samples = {}
@@ -23,28 +22,15 @@ def register_sample(folder, name):
     if sample_id not in samples:
         sample_path = sample_root + "/" + folder + "/" + name + ".wav"
         # create buffer on scsynth
-        send(build_message("/b_allocRead", bufnum, sample_path))
+        send(osc_tools.build_message("/b_allocRead", bufnum, sample_path))
         samples[sample_id] = bufnum
         bufnum += 1
 
 def free_samples():
     for sample in samples:
-        send(build_message("/b_free", samples[sample]))
+        send(osc_tools.build_message("/b_free", samples[sample]))
 
 atexit.register(free_samples)
 
-def build_message(*args):
-    """Sends an OscBundle or OscMessage to the server."""
-    msg = osc_message_builder.OscMessageBuilder(address = args[0])
-    for arg in args[1:]:
-        msg.add_arg(arg)
-    return msg.build()
-
-def build_bundle(timestamp, content):
-    """Sends an OscBundle or OscMessage to the server."""
-    bundle = osc_bundle_builder.OscBundleBuilder(timestamp)
-    bundle.add_content(content)        
-    return bundle.build()
-
 # init default group
-send(build_message("/g_new", 1, 0, 0))
+send(osc_tools.build_message("/g_new", 1, 0, 0))

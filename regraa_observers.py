@@ -2,6 +2,7 @@ import threading
 from regraa_reactive_base import *
 from regraa_sound_events import *
 import regraa_supercollider_client as sc_client
+import regraa_akita_client as akita_client
 
 class sound_out(abstract_observer):
     def __init__(self):
@@ -16,6 +17,12 @@ class sound_out(abstract_observer):
                 sc_client.send(event.get_osc_bundle())
             except Exception as e:
                 print(e)
+                print("Couldn't process synth sound event for some reason")
+        elif self.is_akita_event(event):            
+            try:
+                akita_client.send(event.instance, event.get_osc_bundle())
+            except Exception as e:
+                print(e)
                 print("Couldn't process synth sound event for some reason")    
         else:
             async = threading.Thread(target=event.play)
@@ -27,8 +34,16 @@ class sound_out(abstract_observer):
         except ValueError:           
             return False
         return True
+    def is_akita_event(self, event):
+        try:
+            type(event).mro().index(akita_)
+        except ValueError:           
+            return False
+        return True
     def is_activator(self):
         return True
+
+
     
 snd1 = sound_out()
 snd2 = sound_out()
@@ -40,3 +55,4 @@ snd7 = sound_out()
 snd8 = sound_out()
 snd9 = sound_out()
 snd10 = sound_out()
+

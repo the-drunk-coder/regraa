@@ -11,14 +11,14 @@ start_time = time.time()
 now = 0
 
 # server latency for scsynth (in ms)
-latency = 60
+latency = 100
 
 active = False
 timestamp_dictionary = {}
 stack = []
 
-def get_timestamp(logical_time):
-    timestamp = start_time + ((logical_time + latency) / 1000)    
+def get_timestamp(logical_time, additional_latency):
+    timestamp = start_time + ((logical_time + latency + additional_latency) / 1000)    
     return timestamp
     
 def start(timestamp_dictionary, stack):

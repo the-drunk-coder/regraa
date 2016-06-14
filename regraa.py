@@ -5,9 +5,23 @@ from regraa_sound_events import *
 from regraa_generators import *
 from regraa_observers import *
 from regraa_transformers import *
+import regraa_akita_client as akita_client
 #from regraa_test import *
 
-def get_by_id(id):
+def akita_set_latency(lat):
+    akita_client.akita_add_latency = lat
+    
+def akita_quit ():
+    akita_client.quit_akita_instances()
+
+def akita_load(*args, **kwargs):
+    akita_client.load(*args, **kwargs)
+
+def midi_set_latency(latency):
+    global midi_latency
+    midi_latency = latency
+    
+def get_by_id(id):    
     if id in regraa_objects:
         return regraa_objects[id]
     elif id in regraa_transformers:

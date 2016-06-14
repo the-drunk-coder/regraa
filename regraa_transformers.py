@@ -14,7 +14,7 @@ class regraa_universal_modifier():
         if not self.destructive:
             cooked_entity = copy.deepcopy(raw_entity)
         else:
-            cooked_entity = entity
+            cooked_entity = raw_entity
         if self.modifier is not None:
             cooked_entity = self.modifier.apply_to(cooked_entity)
         return self.modify_entity(cooked_entity)        
@@ -80,7 +80,7 @@ class sinestretch(regraa_universal_modifier):
     
 class wrap(regraa_universal_modifier):
     def __init__(self, modifier, lower, upper, destructive=False, store=True):
-        regraa_universal_modifier.__init__(self,param=modifier.param, modifier=modifier, destructive=destructive)
+        regraa_universal_modifier.__init__(self, param=modifier.param, modifier=modifier, destructive=destructive)
         self.lower = lower
         self.upper = upper
     def calculate_value(self):

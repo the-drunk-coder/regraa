@@ -1,9 +1,8 @@
-* TODO externe variablen auflösen
-  
-  q = 128
-  just("bla", sine_(c4), var(q)) >> snd1 
-  
-  hier sollte das objekt auf veränderung von q entspr. reagieren
+* TODO fix brownian 
+* TODO fix wrap
+* TODO markov graphs
+* TODO check reverb + pluck sound
+* TODO fix destructive option
 * TODO meta-funktionen als event 
   
   just("bla", sine_(c4), 1024)
@@ -14,9 +13,16 @@
   )
   
   hier sollte der loop das routing übernehmen
+* TODO externe variablen auflösen
+  
+  q = 128
+  just("bla", sine_(c4), var(q)) >> snd1 
+  
+  hier sollte das objekt auf veränderung von q entspr. reagieren
 * TODO test-cases für sound events
 * TODO test-cases, überhaupt 
 * TODO doku, as usual 
+* TODO einheitliche default-werte
 * DONE modificators 
   CLOSED: [2016-03-17 Do 17:10]
 * DONE objekte im inaktiven zustand erstellen
@@ -26,7 +32,6 @@
   just("bla", sine_(c4), var(q), inactive=True) >> snd1 
   sollte keinen klang ergeben
   wichtig für die Verwendung als kompositions-sprache
-* TODO einheitliche default-werte
 * DONE erstes event wird nicht gespielt 
   CLOSED: [2016-03-11 Fr 18:04]
   - CLOSING NOTE [2016-03-11 Fr 18:04] \\
@@ -59,4 +64,7 @@
   CLOSED: [2016-03-14 Mo 11:51]
   - CLOSING NOTE [2016-03-14 Mo 11:51] \\
     done !
-* TODO unifiy event- and transition modifier
+* DONE unifiy event- and transition modifier
+  CLOSED: [2016-03-31 Do 20:12]
+  - CLOSING NOTE [2016-03-31 Do 20:12] \\
+    done, works ...

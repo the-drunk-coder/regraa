@@ -136,7 +136,7 @@ class schedulable_observable(abstract_observable):
         current_event = self.next_event()
         
         # equip event with ntp timestamp in case we want to use it with osc ...
-        current_event.ntp_timestamp = scheduler.get_timestamp(logical_time)
+        current_event.ntp_timestamp = scheduler.get_timestamp(logical_time, current_event.additional_latency)
         if is_chord(current_event):
             for sub_event in current_event.content:
                 sub_event.ntp_timestamp = current_event.ntp_timestamp
