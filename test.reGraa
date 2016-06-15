@@ -71,6 +71,25 @@ loop("plucky",
 
 silence()
 
+# choose a random event and transition
+rand("plucky",
+	pluck_(a4, rev=0.6, pan=0.0), 112,
+	pluck_(c4, rev=0.6, pan=0.0), 113,
+	pluck_(e4, rev=0.6, pan=0.0), 450,
+	pluck_(f5, rev=0.6, pan=0.0), 112,
+	pluck_(a5, rev=0.6, pan=0.0), 113,
+	pluck_(c5, rev=0.6, pan=0.0), 450
+) >> snd5
+
+# choose a random event and transition
+chance("plucky_chance", 
+	(30, pluck_(a4, rev=0.1, pan=0.0), 256),
+	(30, pluck_(d5, pan=0.0), 512),
+	(30, pluck_(a6, pan=-1.0), 512),
+	default=(silent_event(), 256)
+) >> snd5
+
+
 
 # below this point you'll find ideas that aren't implemented yet ... 
 graph("markov",

@@ -158,7 +158,7 @@ class _map(abstract_observer):
 
 
 def chance_map(*args, default=(none(), none()), id=None):
-    """ Map single event modifier to stream. """
+    """ Choose event modifier with certain probability. """
     if id is not None and id in regraa_transformers:
         current_object = regraa_transformers[id].update(default, args)
         if regraa_constants.rebuild_chain:

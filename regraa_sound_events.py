@@ -22,6 +22,12 @@ class sound_event(event):
     def play():
         raise NotImplementedError
 
+class silent_event(event):
+    def __init__(self, gain=0.5, dur=0):
+        sound_event.__init__(self, gain = gain, dur = dur)
+    def play(self):
+        pass
+    
 class tuned_sound_event(sound_event):
     def __init__(self, *args, gain=0.5, dur=256):
         sound_event.__init__(self, gain = gain, dur = dur)
