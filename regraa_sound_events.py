@@ -37,6 +37,9 @@ class synth_sound_event(sound_event):
         self.rev = rev
         self.pan = pan
         self.cutoff = cutoff
+    def get_sustain(self):
+        self.sustain = self.dur - self.attack - self.decay - self.release
+        return self.sustain    
     def get_osc_bundle(self):
         if(self.rev > 0.0):
             current_synth_name = self.synth_name + "rev"
@@ -50,7 +53,7 @@ class synth_sound_event(sound_event):
                           "gain", max(0.0, min(self.gain,  1.1)),
                           "a", self.attack / 1000,
                           "d", self.decay / 1000,
-                          "s", self.sustain / 1000,
+                          "s", self.get_sustain() / 1000,
                           "r", self.release / 1000,
                           "rev", self.rev,
                           "pan", self.pan,
@@ -118,7 +121,7 @@ class sample_sound_event(synth_sound_event):
 
 class tuned_synth_sound_event(synth_sound_event, tuned_sound_event):
     def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
-        tuned_sound_event.__init__(self, args[0], gain = gain, dur = dur)
+        tuned_sound_event.__init__(self, args[0], gain=gain, dur=dur)
         synth_sound_event.__init__(self, gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)        
     def get_osc_bundle(self):
         if(self.rev > 0.0):
@@ -132,13 +135,13 @@ class tuned_synth_sound_event(synth_sound_event, tuned_sound_event):
         if type(self.pitch) is regraa_pitch:
             p_freq = self.pitch.pitch.frequency
         else:
-            p_freq = self.pitch
+            p_freq = self.pitch        
         message = osc_tools.build_message("/s_new", current_synth_name, -1, 0, 1,
                           "freq", p_freq,
                           "gain", max(0.0, min(self.gain,  1.1)),
                           "a", self.attack / 1000,
                           "d", self.decay / 1000,
-                          "s", self.sustain / 1000,
+                          "s", self.get_sustain() / 1000,
                           "r", self.release / 1000,
                           "rev", self.rev,
                           "pan", self.pan,

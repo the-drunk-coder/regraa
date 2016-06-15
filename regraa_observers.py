@@ -18,12 +18,14 @@ class sound_out(abstract_observer):
             except Exception as e:
                 print(e)
                 print("Couldn't process synth sound event for some reason")
+                #raise(e)
         elif self.is_akita_event(event):            
             try:
                 akita_client.send(event.instance, event.get_osc_bundle())
             except Exception as e:
                 print(e)
-                print("Couldn't process synth sound event for some reason")    
+                print("Couldn't  process akita event for some reason")
+                #raise(e)
         else:
             async = threading.Thread(target=event.play)
             async.start()

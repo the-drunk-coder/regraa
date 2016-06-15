@@ -37,7 +37,7 @@ def silence():
 
 @or_infix
 def sync(one, two):
-    one.sync(two)
+    get_by_id(one).sync(get_by_id(two))
         
 os.system('clear')
 sys.ps1 = "reGraa> "

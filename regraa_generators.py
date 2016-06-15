@@ -5,29 +5,26 @@ import regraa_constants
 regraa_objects = {}
 
 # simple, single event + transition
-def just(id, event, transition_time):
-    """ Just one repeated event. """
+def just(id, event):
+    """ Just a oneshot event. """
     if id in regraa_objects:
-        current_object = regraa_objects[id].update(event, transition_time)
+        current_object = regraa_objects[id].update(event)
         if regraa_constants.rebuild_chain:
             current_object.clear_subscribers()
         return current_object
     else:
-        new_obj = _just(event, transition_time)
+        new_obj = _just(event)
         regraa_objects[id] = new_obj
         return new_obj
     
 class _just(schedulable_observable):
     """ Just one repeated event. """
-    def __init__(self, event, transition_time):
+    def __init__(self, event):
         schedulable_observable.__init__(self)
-        self.update(event, transition_time)        
-    def update(self, event, transition_time):
-        self.transition = transition(transition_time)
+        self.update(event)        
+    def update(self, event):        
         self.event = event
         return self
-    def next_transition(self):
-        return self.transition
     def next_event(self):        
         return self.event
 

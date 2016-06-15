@@ -1,45 +1,63 @@
-akita_load("plick", "03_electronics/02_casio_high", stream_type="float")
-akita_load("boom", "03_electronics/01_808_long_kick")
-akita_load("feeb", "01_pieces/02_silk_cut_-_the_sadness_of_a_nation"  , sample_repeat=20, stream_type="float")
-akita_load("feeb0", "01_pieces/02_silk_cut_-_the_sadness_of_a_nation" , offset_mod=0.1, pan=0.9)
-akita_load("feeb1", "01_pieces/02_silk_cut_-_the_sadness_of_a_nation" , offset_mod=0.3, sample_repeat=4, pan=0.1, mean_filter=3)
 akita_set_latency(27)
 midi_set_latency(11)
+akita_load("plick", "03_electronics/02_casio_high", stream_type="float")
+akita_load("boom", "03_electronics/01_808_long_kick", write_type="uint")
+akita_load("feeb", "01_pieces/02_silk_cut_-_the_sadness_of_a_nation",
+		   sample_repeat=20,
+		   stream_type="float")
+akita_load("feeb0", "01_pieces/02_silk_cut_-_the_sadness_of_a_nation",
+		    offset_mod=0.1,
+		    pan=0.9)
+akita_load("feeb1", "01_pieces/02_silk_cut_-_the_sadness_of_a_nation",
+		    offset_mod=0.3,
+		    sample_repeat=4,
+		    pan=0.1,
+		    mean_filter=3)
 
 	
-loop("beat", akita_("boom", start=0.0, dur=1000, gain=1, rev=0.2), 1024,	     
+loop("beat", akita_("boom", start=0.0, dur=1000, gain=0.5, rev=0.5), 1024,	     
 	     akita_("plick", start=0.0, dur=510, flippiness=1.0), 512, 
 	     akita_("boom", start=0.0, dur=512, flippiness=1.0), 1024, 
 	     akita_("plick", start=0.0, dur=510, rev=0.1), 512
-) >> snd2
+) >> map(sinestretch("rev", 100, 0.0, 0.9), none()) \
+>> map(sinestretch("cutoff", 120, 100, 2000), none()) \
+>> snd2
 
 loop("beat2", sample_("bd","4", speed=1.0, gain=1.0), 256,
-	      sample_("bd","4", speed=1.0, gain=1.0), 256,
-	      sample_("bd","3", speed=1.0, gain=1.0), 256,
-	     sample_("sn","3", speed=0.5, gain=0.6 ,rev=0.2), 512,
-	     sample_("bd","3", speed=1, gain=0.6 ,rev=0.2), 512)\
+	      sample_("plick","3", speed=1.0, gain=1.0), 256,
+	      sample_("sn","3", speed=1.0, gain=1.0), 512,
+	      sample_("bd","3", speed=0.5, gain=0.6 ,rev=0.2), 512,
+	      sample_("sn","3", speed=1, gain=0.6 ,rev=0.2), 512)\
 >> snd7
 
 loop("simplebass",
-	midi_(c3, dur=50, gain=0.9), 256,
-	midi_(d4, dur=50, gain=0.9), 256,
-	midi_(d6, dur=100, gain=0.9), 256,
-	midi_(cis7, dur=100, gain=0.9), 256
-) >> snd5
+	midi_(a3, dur=50, gain=0.9), 256,
+	midi_(a2, dur=50, gain=0.9), 256,
+	midi_(c1, dur=100, gain=0.9), 256,
+	midi_(e3, dur=100, gain=0.9), 256
+) >> map(add("dur", 100), none())>> snd5
 
+"beat2" |sync| "simplebass"
+"beat2" |sync| "beat"
 
-get_by_id("beat2").sync(get_by_id("beat"))
+loop("feeb", akita_("feeb",
+			start=0.43,
+			dur=2030,
+			mean_filter_on=0,
+			flippiness=1,
+			fuzziness=0.2), 2048) \
+>> map(sinestretch("cutoff", 200, 300, 4000), none()) \
+>> map(brownian("start", 0.2), none()) \
+>> map(wrap("start", 0.1, 0.9), none()) >> snd3
 
-
-just("feeb", akita_("feeb", start=0.43, dur=2030, mean_filter_on=0, flippiness=1, fuzziness=0.2), 2048) \
->> just_map(sinestretch("cutoff", 200, 300, 12000), none()) \
->> just_map(sinestretch("q", 180, 1, 20), none()) >> snd2
-
-just("feebo", akita_("feeb0", start=0.7, dur=508), 512) \
+loop("feebo", akita_("feeb0", start=0.5, dur=240), 256) \
+>> map(brownian("start", 0.2), none()) \
+>> map(wrap("start", 0.2, 0.6), none()) \
 >> snd4
+"feeb" |sync| "feebo"
 
-just("feeb2", akita_("feeb1", start=0.1, dur=119), 128) \
->> just_map(sinestretch("start", 0.1, 0.9, 100), none()) >> snd1
+loop("feeb2", akita_("feeb1", start=0.1, dur=119), 128) \
+>> map(sinestretch("start", 0.1, 0.9, 100), none()) >> snd1
 
 get_by_id("feeb").sync(get_by_id("beat"))
 

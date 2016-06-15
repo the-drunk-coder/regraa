@@ -1,81 +1,65 @@
 # here is where the magic starts
-just("simple", pluck_(g4, dur=80, rev=0.1), 200) \
->> chance_map(
-   (50, add("pitch", 6, destructive=True), add("duration", 200)),
-   (50, add("pitch", -6, destructive=True), add("duration", 200)),
-) \
->> just_map(wrap("pitch", g3, g7), none()) \
->> snd1
 
+# a simple, one-shot event
+just("simple", pluck_(g4, dur=80)) >> snd1
 
-
-just("simple", pluck_(f4, dur=80), 100) \
->> just_map(brownian("pitch", 1), none()) >> snd1
-
-# towards an akita interface
-just("simple", akita_(), 1001) \
->> akita1
-
+# switch off all generators
 silence()
 
-just("sqrbs", sqr_(g4, dur=320, a=100, gain=0.4, cutoff=1200), 800) \
->> chance_map(
-   (15, add("pitch", -6),none()),
-   (20, add("pitch", 16), none())) \
->> just_map(sinestretch("cutoff", 200, 300, 3000), none()) >> snd1
+# loop an event
+loop("simple_loop", pluck_(1050, dur=240, cutoff=1000), 256) >> snd1
 
+# loop multiple events event
+loop("simple_loop_2", pluck_(f3, dur=240, cutoff=1000), 256,
+		      pluck_(a4, dur=240, cutoff=1000), 256) >> snd1
 
-get_by_id("beat").sync(get_by_id("simple"))
+# loop some chords
+loop("plucky_chord_loop",
+	chord(
+            pluck_(a4, gain=0.1, rev=0.1, pan=0.5, cutoff=8000),	   
+            pluck_(c4, gain=0.1, rev=0.0, pan=0.5, cutoff=8000)
+	), 512, 
+	chord(
+	    pluck_(e4, gain=0.1, rev=0.0, cutoff=9000), 
+	    pluck_(a3, gain=0.1, rev=0.0, cutoff=9000)
+	), 512
+) >> snd1
 
-get_by_id("simple") | snd3
-
-silence()
-
+# now map some modifiers .. here: multiply event duration by factor 0.4
 loop("simplebass",
-	sqr_(c2, dur=200, gain=0.3, cutoff=c3, rev=0.3), 180,
-	sqr_(f3, dur=100, gain=0.3, cutoff=1000, rev=0.3), 180,
-	sqr_(a2, dur=200, gain=0.3, cutoff=1000, rev=0.3), 180,
-	sqr_(e4, dur=100, gain=0.3, cutoff=1000, rev=0.3), 180,
+	sqr_(c2, dur=500, gain=0.3, cutoff=c5, rev=0.3), 512	
 ) \
->> chance_map(
-   (10, mute(), none())
-   ) \
->> just_map(sinestretch("cutoff", 600, 300, 2000), none()) >> snd2
+>> map(mul("dur", 0.4), none()) \
+>> snd2
 
+
+# randomly choose some modifiers and sweep cutoff param 
+loop("square_bass", sqr_(g2, dur=250, a=100, gain=0.4, cutoff=1200), 256) \
+>> chance_map(
+   (20, mute(), none()), 
+   (15, add("pitch", -6), none()), 
+   (20, add("pitch", 16), add("dur", 256))
+   ) \
+>> map(sinestretch("cutoff", 100, 300, 3000), none()) >> snd1
+
+# make a beat ! 
 loop("beat", sample_("bd","2", speed=0.9, gain=1.0), 512,
 	     sample_("sn","3", speed=1.2, gain=1.0), 512)\
->> just_map(sinestretch("cutoff", 20, 1000, 4000), none()) >> snd3
+>> map(sinestretch("cutoff", 20, 1000, 4000), none()) >> snd3
 
-loop("plucky2",
-	chord(
-            pluck_(a4, gain=0.1, rev=0.1, pan=0.0, cutoff=8000),	   
-            pluck_(c4, gain=0.1, rev=0.0, pan=0.0, cutoff=8000)
-	), 100, 
-	chord(
-	    pluck_(f5, gain=0.1, rev=0.0, pan=0.0, cutoff=9000), 
-	    pluck_(e6, gain=0.1, rev=0.0, pan=0.0, cutoff=9000)
-	), 100
-) | snd1
+# in case you're aout of sync, use this to re-sync! 2nd argument will wait for 1st
+"beat" |sync| "square_bass"
 
-
-loop("some_other_loop",
-	pluck_(f2, gain=0.1, cutoff=f4), 450,
- 	pluck_(e2, gain=0.1, cutoff=e4), 225,
-	buzz_(a2, gain=0.8, cutoff=a4), 225
-) >> snd6
-
+# you can either use pitch names or frequencys
 loop("freq_loop",
 	sine_(500, rev=0.6, pan=0.0), 512,
 	sine_(600, pan=0.0), 512,
 	sine_(700, pan=1.0), 512
-) >> snd1
+) >> snd6
 
-get_by_id("beat").sync(get_by_id("some_other_loop"))
-get_by_id("beat").sync(get_by_id("simple"))
+"beat" |sync| "freq_loop"
 
-silence()
-
-
+# replace '>>' by '|' to silence single object
 loop("plucky",
 	pluck_(a4, rev=0.6, pan=0.0), 112,
 	pluck_(c4, rev=0.6, pan=0.0), 113,
@@ -83,66 +67,12 @@ loop("plucky",
 	pluck_(f5, rev=0.6, pan=0.0), 112,
 	pluck_(a5, rev=0.6, pan=0.0), 113,
 	pluck_(c5, rev=0.6, pan=0.0), 450
-) >> snd5
-
-
-loop("synctest_a",
-	pluck_(a6, rev=0.6, pan=0.0), 256,
-	pluck_(e2, rev=0.6, pan=0.0), 256,
-	pluck_(c5, rev=0.6, pan=0.0), 256,
-	pluck_(f5, rev=0.6, pan=0.0), 256	
-) >> snd1 
-
-
-silence()
-
-loop("beat",
-	 sample_("bd", "4", gain=0.9, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512,
-	 sample_("sn", "2", gain=0.9, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 512
-) >> snd2
-
-
-
-loop("drybell",
-	risset_(a8, rev=0.6, pan=0.0, dur=1024), 1024,
-	risset_(c8, rev=0.0, pan=0.0, dur=1024), 1024,	
-	risset_(e8, pan=0.0, dur=1024), 1024,
-	risset_(f8, pan=1.0, dur=1024), 1024
-) >> snd1
-
-
-loop("some_loop",
-	buzz_(a2, gain=0.4, rev=0.3, cutoff=a4, pan=0.0), 512,
-	buzz_(e1, gain=0.4, cutoff=e5, pan=0.0), 256,
-	buzz_(f2, gain=0.4, rev=0.6, cutoff=c7, pan=0.0), 512,
-	buzz_(c2, gain=0.4, cutoff=c6, pan=0.0), 256
-) >> snd2
-
-loop("some_loop2",
-	pluck_(a4, gain=0.8, rev=0.3, cutoff=a4, pan=0.0), 0,
-	pluck_(e3, gain=0.8, cutoff=e5, pan=0.0), 1024,
-	pluck_(f4, gain=0.8, rev=0.6, cutoff=c7, pan=0.0), 1024,
-	pluck_(c4, gain=0.8, cutoff=c8, pan=0.0), 1024
-) >> snd4
-
-loop("beat",
-	sample_("sn", "3", gain=1.8, speed=0.7, pan=0.0, cutoff=5000, rev=0.1), 1024,
-	sample_("bd", "1", gain=1.3, speed=0.5, pan=0.0, cutoff=5000, rev=0.1), 1024
-) >> snd1
+) | snd5
 
 silence()
 
 
-loop("synctest_a",
-	pluck_(a6, rev=0.6, pan=0.0), 100,
-	pluck_(e2, rev=0.6, pan=0.0), 200,
-	pluck_(c5, rev=0.6, pan=0.0), 100,
-	pluck_(f5, rev=0.6, pan=0.0), 100	
-) >> snd1 
-
-
-# state preservation by inheriting parent id ??
-
+# below this point you'll find ideas that aren't implemented yet ... 
 graph("markov",
 	node(1, sample_("sn", "3", gain=1.8, speed=0.7, pan=0.0, cutoff=5000, rev=0.1)),
 	edge(1,2, dur=128, prob=50),

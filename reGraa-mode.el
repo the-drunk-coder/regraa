@@ -13,7 +13,7 @@
   '("snd1" "snd2" "snd3" "snd4" "snd5" "snd6" "snd7" "snd8" "buzz" "sine" "pluck" "akita" "midi" "say" "sqr" "risset" "sample"))
 
 (defvar reGraa-keywords
-      '("just" "loop" "seq" "graph"))
+      '("just" "loop" "seq" "graph" "map" "chance_map"))
 
 (defvar reGraa-font-lock-defaults
   `((

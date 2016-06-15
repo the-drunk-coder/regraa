@@ -2,17 +2,18 @@ import copy, uuid
 import regraa_scheduler as scheduler
 
 class event:
-    def __init__(self):
+    def __init__(self, additional_latency = 0):
         self.ntp_timestamp = 0
+        self.additional_latency = additional_latency
         self.content = None
 
 class transition:
-    def __init__(self, duration):
-        self.duration = duration
+    def __init__(self, dur):
+        self.dur = dur
         
 class chord(event):
-    def __init__(self, *args):
-        event.__init__(self)
+    def __init__(self, *args, additional_latency = 0):
+        event.__init__(self, additional_latency=additional_latency)
         self.content = args
     
 """
@@ -145,9 +146,14 @@ class schedulable_observable(abstract_observable):
         self.push_event(current_event)
 
         # get raw transition and pull eventual changes from subscribers
-        current_transition = self.pull_transition(self.next_transition())
-
-        self.schedule_next_step(logical_time, current_transition.duration)           
+        try:
+            current_transition = self.pull_transition(self.next_transition())
+        except NotImplementedError:
+            print("seems as if object has finished ...")
+            self.deactivate()
+            return
+            
+        self.schedule_next_step(logical_time, current_transition.dur)           
     def schedule_next_step(self, current_logical_time, time):
         scheduler.schedule_function(self._uuid, self.next, current_logical_time + time)    
     
