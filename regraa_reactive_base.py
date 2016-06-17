@@ -30,10 +30,13 @@ class subscribeable:
     def __init__(self):
         self.subscribers = []            
     def subscribe(self, subscriber):
+        #print("try subscribing " + str(subscriber))
         try:
             # subscribers are unique ... 
-            self.subscribers.index(subscriber) 
+            self.subscribers.index(subscriber)
+            #print("FOUND, NOT ADDING")
         except ValueError:
+            #print("ADDING!!!")
             try:
                 # in case the subscriber had another parent before,
                 if subscriber.parent is not self:
@@ -56,7 +59,7 @@ class subscribeable:
             pass
         return self
     def clear_subscribers(self):
-        self.subscribers = []
+        self.subscribers = []    
     def push_event(self, event):
         # generate next event or transition in sequence
         for subscriber in self.subscribers:
@@ -67,6 +70,8 @@ class subscribeable:
             transition = subscriber.handle_transition(transition)
         return transition
     def __rshift__(self, other):
+        # for now, only chains without diversions possible
+        self.subscribers = []
         return self.subscribe(other)
     #def __lshift__(self, other):
     #    other.subscribe(self)

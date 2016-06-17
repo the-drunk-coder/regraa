@@ -68,7 +68,7 @@ class synth_sound_event(sound_event):
 # end synth_sound_event
 
 class akita_(sound_event):
-    def __init__(self, instance, start=0.0, dur=256, gain=0.2, flippiness=0.0, fuzziness=0.0, rev=0.0, cutoff=20000, q=2, mean_filter_on=0):        
+    def __init__(self, instance, start=0.0, dur=256, gain=0.2, flippiness=0.0, fuzziness=0.0, rev=0.0, cutoff=20000, q=2, mean_filter_on=0, sample_repeat=1, samplerate_mod=1, pan=0.5):        
         sound_event.__init__(self, gain = gain, dur = dur)
         self.additional_latency = akita_client.akita_add_latency
         self.instance = instance
@@ -79,6 +79,9 @@ class akita_(sound_event):
         self.mean_filter_on = mean_filter_on
         self.q = q
         self.cutoff = cutoff
+        self.sample_repeat = sample_repeat
+        self.samplerate_mod = samplerate_mod
+        self.pan = pan
     def get_osc_bundle(self):            
         message = osc_tools.build_message("/akita/play",
                                           float(self.start),
@@ -89,7 +92,10 @@ class akita_(sound_event):
                                           float(self.q),
                                           float(self.cutoff),
                                           float(self.flippiness),
-                                          float(self.fuzziness))        
+                                          float(self.fuzziness),
+                                          int(self.sample_repeat),                                          
+                                          float(self.pan),
+                                          float(self.samplerate_mod))
         return osc_tools.build_bundle(self.ntp_timestamp, message)
 # end akita_
 
@@ -99,7 +105,7 @@ class sample_sound_event(synth_sound_event):
         self.folder = str(args[0])
         self.name = str(args[1])        
         self.speed = speed
-        print(self.speed)
+        #print(self.speed)
         self.start = start
         sc_client.register_sample(self.folder, self.name)
     def get_osc_bundle(self):
@@ -185,7 +191,7 @@ class midi_(tuned_sound_event):
         if current_pitch not in notes_on:
             pg_time.wait(self.latency)
             notes_on[current_pitch] = True
-            velocity = int(127 * self.gain)
+            velocity = int(127.0 * self.gain)
             midi_out.note_on(current_pitch, velocity)
             pg_time.wait(int(self.dur))
             if not self.portamento:

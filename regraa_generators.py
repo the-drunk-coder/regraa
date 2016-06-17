@@ -53,13 +53,9 @@ class _loop(schedulable_observable):
     def update(self, sequence):
         self.events = []
         self.transitions = []
-        for arg in sequence:
-            if type(arg) is int:
-                self.transitions.append(transition(arg))
-            else:
-                self.events.append(arg)
-        if len(self.events) is not len(self.transitions):
-            raise Exception("invalid loop, not enough transitions")
+        for arg in sequence:                        
+            self.events.append(arg[0])
+            self.transitions.append(transition(arg[1]))                    
         return self
     def next_transition(self):
         trans = self.transitions[self.index]
@@ -68,6 +64,18 @@ class _loop(schedulable_observable):
     def next_event(self):
         #print(self.index)
         return self.events[self.index]
+    def insert(self, pos, event_tuple):
+        self.events.insert(pos, event_tuple[0])
+        self.transitions.insert(pos, event_tuple[1])
+    def push_back(self, event_tuple):
+        self.events.append(event_tuple[0])
+        self.transitions.append(transition(event_tuple[1]))
+    def replace(self, pos, event_tuple):
+        self.events.pop(pos)
+        self.transitions.pop(pos)
+        self.events.insert(pos, event_tuple[0])
+        self.transitions.insert(pos, transition(event_tuple[1]))
+        
 
 # Randomized sequence of events and transitions
 def rand(*args):

@@ -4,32 +4,33 @@ import random
 import math
 
 class regraa_universal_modifier():
-    def __init__(self, param="", destructive=False):        
-        self.value = None
+    def __init__(self, param="", destructive=False):                
         self.param = param        
         self.destructive = destructive
     def apply_to(self, entity):
-        if not self.destructive:
-            return self.modify_entity(copy.deepcopy(entity))        
-        else:
+        if self.destructive:
+            #print("DESTROY!!!")
             return self.modify_entity(entity)                    
+        else:
+            return self.modify_entity(copy.deepcopy(entity))
     def modify_entity(self, entity):                
-        self.value = getattr(entity, self.param)                
         if hasattr(entity, self.param):
-            setattr(entity, self.param, self.calculate_value())
+            setattr(entity, self.param, self.calculate_value(getattr(entity, self.param)))
         return entity
-    def calculate_value(self):
-        raise NotImplementedError
-
+    def calculate_value(self, current_value):
+        raise NotImplementedError    
+    
 # dummy modifier
-class none():
-    def apply_to(self, entity):
+class none(regraa_universal_modifier):
+    def __init__(self):
+        regraa_universal_modifier.__init__(self, param="none", destructive=False)
+    def apply_to(self, entity):        
         return entity
 
 class mute(regraa_universal_modifier):
     def __init__(self, destructive=False):
         regraa_universal_modifier.__init__(self, param="gain", destructive=destructive)
-    def calculate_value(self):
+    def calculate_value(self, current_value):
         return 0.0
     
 """
@@ -39,29 +40,29 @@ class add(regraa_universal_modifier):
     def __init__(self, param, increment, destructive=False):
         regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
         self.increment = increment        
-    def calculate_value(self):        
-        return self.value + self.increment
+    def calculate_value(self, current_value):        
+        return current_value + self.increment
 
 class sub(regraa_universal_modifier):
     def __init__(self, param, decrement, destructive=False):
         regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
         self.decrement = decrement        
-    def calculate_value(self):        
-        return self.value - self.decrement
+    def calculate_value(self, current_value):        
+        return current_value - self.decrement
 
 class div(regraa_universal_modifier):
     def __init__(self, param, divisor, destructive=False):
         regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
         self.divisor = divisor        
-    def calculate_value(self):        
-        return self.value / self.divisor
+    def calculate_value(self, current_value):        
+        return current_value / self.divisor
 
 class mul(regraa_universal_modifier):
     def __init__(self, param, factor, destructive=False):
         regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
         self.factor = factor        
-    def calculate_value(self):        
-        return self.value * self.factor
+    def calculate_value(self, current_value):        
+        return current_value * self.factor
     
 
 """ 
@@ -72,12 +73,37 @@ need to be destructive for now ...
 somewhat clearer that way ... 
 
 """
+
+class fade_in(regraa_universal_modifier):
+    def __init__(self, param, increment, goal, destructive=True):
+        regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
+        self.increment = increment
+        self.goal = goal
+    def calculate_value(self, current_value):                
+        tmp = current_value + self.increment
+        if tmp > self.goal:
+            return self.goal
+        else:
+            return current_value + self.increment
+
+class fade_out(regraa_universal_modifier):
+    def __init__(self, param, decrement, goal, destructive=True):
+        regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
+        self.decrement = decrement
+        self.goal = goal
+    def calculate_value(self, current_value):
+        tmp = current_value - self.decrement
+        if tmp < self.goal:
+            return self.goal
+        else:
+            return current_value - self.decrement
+           
 class brownian(regraa_universal_modifier):
     def __init__(self, param, increment, destructive=True):
         regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
         self.increment = increment        
-    def calculate_value(self):                
-        return self.value + random.choice([self.increment, -self.increment])
+    def calculate_value(self, current_value):                
+        return current_value + random.choice([self.increment, -self.increment])
 
 class sinestretch(regraa_universal_modifier):
     def __init__(self, param, cyclicity, min_bound, max_bound, destructive=True):
@@ -87,7 +113,7 @@ class sinestretch(regraa_universal_modifier):
         self.max_bound = max_bound
         self.step = 0
         self.degree_increment = 360 / self.cyclicity
-    def calculate_value(self):
+    def calculate_value(self, current_value):
         degree = ((self.step % self.cyclicity) * self.degree_increment) % 360
         abs_sin = abs(math.sin(math.radians(degree)))
         stretch_range = self.max_bound - self.min_bound
@@ -98,26 +124,26 @@ class wrap(regraa_universal_modifier):
         regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
         self.lower = lower
         self.upper = upper
-    def calculate_value(self):
-        if self.value < self.lower:            
+    def calculate_value(self, current_value):
+        if current_value < self.lower:            
             return self.upper
-        elif self.value > self.upper:            
+        elif current_value > self.upper:            
             return self.lower
         else:
-            return self.value
+            return current_value
 
 class bounds(regraa_universal_modifier):
     def __init__(self, param, lower, upper, destructive=True):
         regraa_universal_modifier.__init__(self, param=param, destructive=destructive)
         self.lower = lower
         self.upper = upper
-    def calculate_value(self):
-        if self.value < self.lower:
+    def calculate_value(self, current_value):
+        if current_value < self.lower:
             return self.lower
-        elif self.value > self.upper:
+        elif current_value > self.upper:
             return self.upper
         else:
-            return self.value
+            return current_value
         
 regraa_transformers = {}
         
@@ -144,19 +170,20 @@ class _map(abstract_observer):
         self.transition_modifier = transition_modifier
         return self
     def on_event(self, event):
+        #print("EVENT MOOOD!")
         if hasattr(self.event_modifier, "step"):
             self.event_modifier.step = self.step
         self.step += 1        
         return self.event_modifier.apply_to(event)
     def on_transition(self, transition):
+        #print("TRANS MOOOD!")
         if self.transition_modifier is not None:
             if hasattr(self.transition_modifier, "step"):
                 self.transition_modifier.step = self.step
             return self.transition_modifier.apply_to(transition)
         else:
-            return transition
-
-
+            return transition    
+    
 def chance_map(*args, default=(none(), none()), id=None):
     """ Choose event modifier with certain probability. """
     if id is not None and id in regraa_transformers:
