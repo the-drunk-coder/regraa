@@ -144,23 +144,9 @@ class bounds(regraa_universal_modifier):
             return self.upper
         else:
             return current_value
-        
-regraa_transformers = {}
-        
-def map(event_modifier, transition_modifier, id=None):
-    """ Map single event modifier to stream. """
-    if id is not None and id in regraa_transformers:
-        current_object = regraa_transformers[id].update(event_modifier, transition_modifier)
-        if regraa_constants.rebuild_chain:
-            current_object.clear_subscribers()
-        return current_object
-    else:
-        new_obj = _map(event_modifier, transition_modifier)
-        regraa_transformers[id] = new_obj
-        return new_obj
 
-        
-class _map(abstract_observer):
+# modifier applicators
+class map(abstract_observer):
     def __init__(self, event_modifier, transition_modifier):
         abstract_observer.__init__(self)
         self.step = 0
@@ -184,21 +170,8 @@ class _map(abstract_observer):
         else:
             return transition    
     
-def chance_map(*args, default=(none(), none()), id=None):
-    """ Choose event modifier with certain probability. """
-    if id is not None and id in regraa_transformers:
-        current_object = regraa_transformers[id].update(default, args)
-        if regraa_constants.rebuild_chain:
-            current_object.clear_subscribers()
-        return current_object
-    else:
-        new_obj = _chance_map(default, args)
-        regraa_transformers[id] = new_obj
-        return new_obj
-
-        
-class _chance_map(abstract_observer):
-    def __init__(self, default, modifier_tuples):
+class chance_map(abstract_observer):
+    def __init__(self, *modifier_tuples, default=(none(), none())):
         abstract_observer.__init__(self)
         self.step = 0
         self.modifier_list = []
