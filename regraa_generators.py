@@ -3,54 +3,25 @@ from regraa_reactive_base import *
 from regraa_sound_events import silent_event
 import regraa_constants
 
-# store objects by their unique id
-regraa_objects = {}
-
-# simple, single event + transition
-def just(id, event):
-    """ Just a oneshot event. """
-    if id in regraa_objects:
-        current_object = regraa_objects[id].update(event)
-        if regraa_constants.rebuild_chain:
-            current_object.clear_subscribers()
-        return current_object
-    else:
-        new_obj = _just(event)
-        regraa_objects[id] = new_obj
-        return new_obj
     
-class _just(schedulable_observable):
+class just(schedulable_observable):
     """ Just one repeated event. """
-    def __init__(self, event):
+    def __init__(self):
         schedulable_observable.__init__(self)
-        self.update(event)        
+        #self.update(event)        
     def update(self, event):        
         self.event = event
         return self
     def next_event(self):        
         return self.event
 
-# looped sequence of events and 
-def loop(*args):
-    """ Looped of events with transition times between them. """
-    id = args[0]
-    if id in regraa_objects:
-        current_object = regraa_objects[id].update(args[1:])
-        if regraa_constants.rebuild_chain:
-            current_object.clear_subscribers()
-        return current_object
-    else:
-        new_obj = _loop(args[1:])
-        regraa_objects[id] = new_obj
-        return new_obj
-    
-class _loop(schedulable_observable):
-    """ Looped of events with transition times between them (inner class). """
-    def __init__(self, sequence):
+class loop(schedulable_observable):
+    """ Loop of events with transition times between them. """
+    def __init__(self):
         schedulable_observable.__init__(self)        
         self.index = 0
-        self.update(sequence)        
-    def update(self, sequence):
+        #self.update(sequence)        
+    def update(self, *sequence):
         self.events = []
         self.transitions = []
         for arg in sequence:                        
@@ -75,28 +46,12 @@ class _loop(schedulable_observable):
         self.transitions.pop(pos)
         self.events.insert(pos, event_tuple[0])
         self.transitions.insert(pos, transition(event_tuple[1]))
-        
 
-# Randomized sequence of events and transitions
-def rand(*args):
+class rand(schedulable_observable):
     """ Randomized events with randomly chosen transition times between them. """
-    id = args[0]
-    if id in regraa_objects:
-        current_object = regraa_objects[id].update(args[1:])
-        if regraa_constants.rebuild_chain:
-            current_object.clear_subscribers()
-        return current_object
-    else:
-        new_obj = _rand(args[1:])
-        regraa_objects[id] = new_obj
-        return new_obj
-    
-class _rand(schedulable_observable):
-    """ Randomized events with randomly chosen transition times between them (inner class). """
-    def __init__(self, sequence):
-        schedulable_observable.__init__(self)                
-        self.update(sequence)        
-    def update(self, sequence):
+    def __init__(self):
+        schedulable_observable.__init__(self)        
+    def update(self, *sequence):
         self.events = []
         self.transitions = []
         for arg in sequence:
@@ -110,30 +65,15 @@ class _rand(schedulable_observable):
     def next_event(self):
         return random.choice(self.events)
 
-
-# choose event with certain probability    
-def chance(*args, default=(silent_event(), 512)):
-    """ Choose event with certain probability. """
-    id = args[0]
-    if id is not None and id in regraa_objects:
-        current_object = regraa_objects[id].update(default, args[1:])
-        if regraa_constants.rebuild_chain:
-            current_object.clear_subscribers()
-        return current_object
-    else:
-        new_obj = _chance(default, args[1:])
-        regraa_objects[id] = new_obj
-        return new_obj
-
-class _chance(schedulable_observable):
-    def __init__(self, default, event_tuples):
+class chance(schedulable_observable):
+    def __init__(self):
         schedulable_observable.__init__(self)        
         self.step = 0
         self.event_list = []
         self.event = silent_event()
         self.transition = silent_event()
-        self.update(default, event_tuples)
-    def update(self, default, event_tuples):
+        #self.update(default, event_tuples)
+    def update(self, *event_tuples, default=(silent_event(),silent_event())):
         self.event_list = []
         probability_count = 0
         for event_tuple in event_tuples:            
