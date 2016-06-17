@@ -27,6 +27,11 @@ def get_free_port():
     return port
 
 def load(*args, **kwargs):
+    try:        
+        send(args[0], osc_tools.build_message("/akita/quit"))
+        print("replace " + args[0] + " at " + str(akita_ports[args[0]]))
+    except KeyError:
+        print("init " + args[0])        
     port = get_free_port();
     akita_ports[args[0]] = port
     add_params = "";
@@ -37,7 +42,7 @@ def load(*args, **kwargs):
         cmd,
         shell=True,
         stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE
+        #stdout=subprocess.PIPE
     )
 
 def send(instance, bundle):    
