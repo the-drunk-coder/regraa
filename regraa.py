@@ -6,7 +6,6 @@ from regraa_generators import *
 from regraa_observers import *
 from regraa_transformers import *
 import regraa_akita_client as akita_client
-#from regraa_test import *
 
 def akita_set_latency(lat):
     akita_client.akita_add_latency = lat
@@ -21,23 +20,9 @@ def midi_set_latency(latency):
     global midi_latency
     midi_latency = latency
     
-def get_by_id(id):    
-    if id in regraa_objects:
-        return regraa_objects[id]
-    elif id in regraa_transformers:
-        return regraa_transformers[id]
-    else:
-        return none
-
-def silence():
-    for id in regraa_objects:
-        regraa_objects[id].deactivate()
-    for id in regraa_transformers:
-        regraa_transformers[id].active = False
-
 @or_infix
 def sync(one, two):
-    get_by_id(one).sync(get_by_id(two))
+    one.sync(two)
         
 os.system('clear')
 sys.ps1 = "reGraa> "
