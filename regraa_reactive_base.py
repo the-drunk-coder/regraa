@@ -16,27 +16,15 @@ class chord(event):
         event.__init__(self, additional_latency=additional_latency)
         self.content = args
     
-"""
-def is_modifier(param):        
-    try:
-        type(param).mro().index(abstract_modifier)
-    except ValueError:           
-        return False
-    return True
-"""
-
 # handles subscriptions for just about anything ...
 class subscribeable:
     def __init__(self):
         self.subscribers = []            
     def subscribe(self, subscriber):
-        #print("try subscribing " + str(subscriber))
         try:
             # subscribers are unique ... 
             self.subscribers.index(subscriber)
-            #print("FOUND, NOT ADDING")
         except ValueError:
-            #print("ADDING!!!")
             try:
                 # in case the subscriber had another parent before,
                 if subscriber.parent is not self:
@@ -107,7 +95,6 @@ def is_chord(event):
             return False
         return True
 
-    
 # class that generates a sequence of events, triggered by scheduler    
 class schedulable_observable(abstract_observable):
     def __init__(self):
@@ -124,6 +111,8 @@ class schedulable_observable(abstract_observable):
     def deactivate(self):
         self.active = False
         scheduler.clean(self._uuid)
+    def stop(self):
+        self.deactivate()        
     def activate(self):
         if not self.active:
             self.active = True

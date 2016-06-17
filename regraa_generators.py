@@ -3,6 +3,13 @@ from regraa_reactive_base import *
 from regraa_sound_events import silent_event
 import regraa_constants
 
+def is_generator(gen):
+        try:
+            type(schedulable_observable).mro().index(gen)
+        except ValueError:           
+            return False
+        return True
+
     
 class just(schedulable_observable):
     """ Just one repeated event. """

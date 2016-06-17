@@ -99,6 +99,35 @@ class akita_(sound_event):
         return osc_tools.build_bundle(self.ntp_timestamp, message)
 # end akita_
 
+class akita_param_(sound_event):
+    def __init__(self, instance, gain=0.2, flippiness=0.0, fuzziness=0.0, rev=0.0, cutoff=20000, q=2, mean_filter_on=0, sample_repeat=1, samplerate_mod=1, pan=0.5):        
+        sound_event.__init__(self, gain = gain, dur = 0)
+        self.additional_latency = akita_client.akita_add_latency
+        self.instance = instance        
+        self.flippiness = flippiness
+        self.fuzziness = fuzziness
+        self.rev = rev
+        self.mean_filter_on = mean_filter_on
+        self.q = q
+        self.cutoff = cutoff
+        self.sample_repeat = sample_repeat
+        self.samplerate_mod = samplerate_mod
+        self.pan = pan
+    def get_osc_bundle(self):            
+        message = osc_tools.build_message("/akita/param",                                          
+                                          float(self.gain),
+                                          float(self.rev),
+                                          self.mean_filter_on,
+                                          float(self.q),
+                                          float(self.cutoff),
+                                          float(self.flippiness),
+                                          float(self.fuzziness),
+                                          int(self.sample_repeat),                                          
+                                          float(self.pan),
+                                          float(self.samplerate_mod))
+        return osc_tools.build_bundle(self.ntp_timestamp, message)
+# end akita_
+
 class sample_sound_event(synth_sound_event):
     def __init__(self, *args, gain=0.5, dur=0, a=4, speed=1.0, start=0.0, r=5, rev=0.0, pan=0.0, cutoff=20000):
         synth_sound_event.__init__(self, gain=gain, dur=dur, a=a, d=0, r=r, rev=rev, pan=pan, cutoff=cutoff)
