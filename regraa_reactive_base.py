@@ -99,11 +99,12 @@ def is_chord(event):
 class schedulable_observable(abstract_observable):
     def __init__(self):
         subscribeable.__init__(self)
+        self.shift_time = 0        
         self.active = False
         # needed for clean deactivation of objects,
         # as all future events scheduled for this event
         # need to be removed from scheduler 
-        self._uuid = uuid.uuid4().hex
+        self._uuid = uuid.uuid4().hex        
         self.syncables = []
     def sync(self, other):
         other.deactivate()
@@ -113,6 +114,10 @@ class schedulable_observable(abstract_observable):
         scheduler.clean(self._uuid)
     def stop(self):
         self.deactivate()        
+    def shift(self, shift_time):
+        print("setting shift time to " + str(shift_time))
+        self.shift_time = shift_time
+        self.update_shift = True
     def activate(self):
         if not self.active:
             self.active = True
@@ -128,7 +133,11 @@ class schedulable_observable(abstract_observable):
             self.syncables = []
             
         # generate and push event to subscribers
+        # before, update things like additional latencies and shift time
         current_event = self.next_event()
+        current_event.update()
+        current_event.additional_latency = current_event.additional_latency + self.shift_time
+        
         
         # equip event with ntp timestamp in case we want to use it with osc ...
         current_event.ntp_timestamp = scheduler.get_timestamp(logical_time, current_event.additional_latency)

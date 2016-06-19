@@ -10,8 +10,6 @@ address = "127.0.0.1"
 sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 sock.setblocking(False)
 
-akita_add_latency = 30
-
 def quit_akita_instances():
     for instance in akita_ports:
         send(instance, osc_tools.build_message("/akita/quit"))

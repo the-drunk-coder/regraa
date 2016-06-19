@@ -13,14 +13,18 @@ import regraa_supercollider_client as sc_client
 import regraa_akita_client as akita_client
 from random import randint 
 import regraa_osc_tools as osc_tools
+from regraa_defaults import regraa_defaults as default 
 
 class sound_event(event):
     def __init__(self, gain=0.5, dur=0):
         self.gain = gain
         self.dur = dur
         self.additional_latency = 0
-    def play():
+    def play(self):
         raise NotImplementedError
+    # method to be called before playing, i.e. to update latency and the like
+    def update(self):
+        pass
 
 class silent_event(event):
     def __init__(self, gain=0.5, dur=0):
@@ -70,7 +74,7 @@ class synth_sound_event(sound_event):
 class akita_(sound_event):
     def __init__(self, instance, start=0.0, dur=256, gain=0.2, flippiness=0.0, fuzziness=0.0, rev=0.0, cutoff=20000, q=2, mean_filter_on=0, sample_repeat=1, samplerate_mod=1, pan=0.5):        
         sound_event.__init__(self, gain = gain, dur = dur)
-        self.additional_latency = akita_client.akita_add_latency
+        self.additional_latency = default.akita_latency
         self.instance = instance
         self.start = start
         self.flippiness = flippiness
@@ -82,6 +86,8 @@ class akita_(sound_event):
         self.sample_repeat = sample_repeat
         self.samplerate_mod = samplerate_mod
         self.pan = pan
+    def update(self):
+        self.additional_latency = default.akita_latency
     def get_osc_bundle(self):            
         message = osc_tools.build_message("/akita/play",
                                           float(self.start),
@@ -93,7 +99,7 @@ class akita_(sound_event):
                                           float(self.cutoff),
                                           float(self.flippiness),
                                           float(self.fuzziness),
-                                          int(self.sample_repeat),                                          
+                                          int(self.sample_repeat),
                                           float(self.pan),
                                           float(self.samplerate_mod))
         return osc_tools.build_bundle(self.ntp_timestamp, message)
@@ -102,7 +108,7 @@ class akita_(sound_event):
 class akita_param_(sound_event):
     def __init__(self, instance, gain=0.2, flippiness=0.0, fuzziness=0.0, rev=0.0, cutoff=20000, q=2, mean_filter_on=0, sample_repeat=1, samplerate_mod=1, pan=0.5):        
         sound_event.__init__(self, gain = gain, dur = 0)
-        self.additional_latency = akita_client.akita_add_latency
+        self.additional_latency = default.akita_latency
         self.instance = instance        
         self.flippiness = flippiness
         self.fuzziness = fuzziness
@@ -113,6 +119,8 @@ class akita_param_(sound_event):
         self.sample_repeat = sample_repeat
         self.samplerate_mod = samplerate_mod
         self.pan = pan
+    def update(self):
+        self.additional_latency = default.akita_latency
     def get_osc_bundle(self):            
         message = osc_tools.build_message("/akita/param",                                          
                                           float(self.gain),
@@ -122,7 +130,7 @@ class akita_param_(sound_event):
                                           float(self.cutoff),
                                           float(self.flippiness),
                                           float(self.fuzziness),
-                                          int(self.sample_repeat),                                          
+                                          int(self.sample_repeat),
                                           float(self.pan),
                                           float(self.samplerate_mod))
         return osc_tools.build_bundle(self.ntp_timestamp, message)
@@ -206,19 +214,17 @@ atexit.register(del_out)
 # naive note mutex
 notes_on = {}
 
-midi_latency = 135
-
 class midi_(tuned_sound_event):
     def __init__(self, *args, gain=0.5, dur=256, portamento=False):
         tuned_sound_event.__init__(self, args[0], gain=gain, dur=dur)
-        self.latency = midi_latency
+        self.additional_latency = default.midi_latency
         self.portamento = portamento
-    def set_latency(self, latency):        
-        self.latency = latency
+    def update(self):
+        self.additional_latency = default.midi_latency
     def play(self, *args, **kwargs):        
         current_pitch = self.pitch.pitch.midi
-        if current_pitch not in notes_on:
-            pg_time.wait(self.latency)
+        pg_time.wait(self.additional_latency)
+        if current_pitch not in notes_on:            
             notes_on[current_pitch] = True
             velocity = int(127.0 * self.gain)
             midi_out.note_on(current_pitch, velocity)
@@ -293,14 +299,11 @@ class say_(sound_event):
     def __init__(self, *args, gain=0.6, speed=140):
         sound_event.__init__(self, gain=gain, dur = 0)
         self.text = args[0]
-        self.speed = speed
-        self.latency = 0
-    def set_latency(self, latency):
-        self.latency = latency
-    def play():
-        pg_time.wait(self.latency)
+        self.speed = speed        
+    def play(self):
+        pg_time.wait(self.additional_latency)
         amp = 100 * self.gain
-        command = "espeak -s{} -a{} --stdout \"{}\" | aplay -q" .format(int(speed), int(amp), text)
+        command = "espeak -s{} -a{} --stdout \"{}\" | aplay -q" .format(int(self.speed), int(amp), self.text)
         os.system(command)
 # end say_    
 
