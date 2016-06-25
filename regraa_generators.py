@@ -1,7 +1,7 @@
 import random
 from regraa_reactive_base import *
 from regraa_sound_events import silent_event
-import regraa_constants
+from regraa_defaults import regraa_defaults as default
 
 def is_generator(gen):
         try:
@@ -27,7 +27,17 @@ class loop(schedulable_observable):
     def __init__(self):
         schedulable_observable.__init__(self)        
         self.index = 0
-        #self.update(sequence)        
+        self.index_syncables = {}
+    def reset(self):
+        self.index = 0
+    def sync_at(self, index, syncable):
+        syncable.deactivate()
+        syncable.reset()
+        try:
+            self.index_syncables[index]
+        except KeyError:
+            self.index_syncables[index] = []        
+        self.index_syncables[index].append(syncable)
     def update(self, *sequence):
         self.events = []
         self.transitions = []
@@ -40,7 +50,14 @@ class loop(schedulable_observable):
         self.index = (self.index + 1) % len(self.events)
         return trans
     def next_event(self):
-        #print(self.index)
+        try:
+            current_syncables = self.index_syncables[self.index]
+        except:
+            current_syncables = []
+        if len(current_syncables) > 0:
+            for syncable in current_syncables:
+                syncable.activate()
+                self.index_syncables[self.index] = []
         return self.events[self.index]
     def insert(self, pos, event_tuple):
         self.events.insert(pos, event_tuple[0])

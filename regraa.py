@@ -22,14 +22,20 @@ def midi_set_latency(latency):
 
 @infix
 def shift(obj, time):
-    print("shift!!!!" + str(time))
+    #print("shift!!!!" + str(time))    
     obj.shift(time)
     
 @infix
-def sync(one, two):
+def sync_to(one, two):
     print("sync")
     two.sync(one)
 
+@infix
+def sync_at(one, two):
+    print("sync at")
+    two[0].sync_at(two[1], one)
+
+    
 
 os.system('clear')
 sys.ps1 = "reGraa> "
