@@ -1,5 +1,6 @@
+from enum import Enum
 from regraa_reactive_base import *
-import regraa_constants
+from regraa_defaults import regraa_defaults as default
 import random
 import math
 
@@ -63,7 +64,27 @@ class mul(regraa_universal_modifier):
         self.factor = factor        
     def calculate_value(self, current_value):        
         return current_value * self.factor
-    
+
+class scatter(regraa_universal_modifier):
+    def __init__(self, values):
+        regraa_universal_modifier.__init__(self, param="", destructive=True)
+        self.values = values
+        self.index = 0
+        self.move_back = False
+    def modify_entity(self, entity):
+        entity.scatter = self.values[self.index]
+        #print(entity.scatter)
+        if not self.move_back:
+            self.index = self.index + 1
+            if self.index >= len(self.values):
+                self.index = len(self.values) - 1
+                self.move_back = True
+        else:
+            self.index = self.index - 1
+            if self.index < 0:
+                self.index = 0
+                self.move_back = False
+        return entity
 
 """ 
 

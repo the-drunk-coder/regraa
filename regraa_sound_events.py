@@ -20,6 +20,7 @@ class sound_event(event):
         self.gain = gain
         self.dur = dur
         self.additional_latency = 0
+        self.scatter = 0
     def play(self):
         raise NotImplementedError
     # method to be called before playing, i.e. to update latency and the like

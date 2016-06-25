@@ -5,11 +5,13 @@ class event:
     def __init__(self, additional_latency = 0):
         self.ntp_timestamp = 0
         self.additional_latency = additional_latency
+        #self.scatter = 0
         self.content = None
 
 class transition:
     def __init__(self, dur):
         self.dur = dur
+        self.scatter = 0
         
 class chord(event):
     def __init__(self, *args, additional_latency = 0):
@@ -99,7 +101,8 @@ def is_chord(event):
 class schedulable_observable(abstract_observable):
     def __init__(self):
         subscribeable.__init__(self)
-        self.shift_time = 0        
+        self.shift_time = 0
+        self.shift_difference = 0        
         self.active = False
         # needed for clean deactivation of objects,
         # as all future events scheduled for this event
@@ -114,10 +117,14 @@ class schedulable_observable(abstract_observable):
         scheduler.clean(self._uuid)
     def stop(self):
         self.deactivate()        
-    def shift(self, shift_time):
-        print("setting shift time to " + str(shift_time))
-        self.shift_time = shift_time
-        self.update_shift = True
+    def shift(self, new_shift_time):
+        print("setting shift time to " + str(new_shift_time))
+        self.shift_difference = new_shift_time - self.shift_time                            
+        self.shift_time = new_shift_time
+    def reset(self):
+        pass
+    def sync_at(self, *args):
+        pass
     def activate(self):
         if not self.active:
             self.active = True
@@ -136,9 +143,7 @@ class schedulable_observable(abstract_observable):
         # before, update things like additional latencies and shift time
         current_event = self.next_event()
         current_event.update()
-        current_event.additional_latency = current_event.additional_latency + self.shift_time
-        
-        
+                      
         # equip event with ntp timestamp in case we want to use it with osc ...
         current_event.ntp_timestamp = scheduler.get_timestamp(logical_time, current_event.additional_latency)
         if is_chord(current_event):
@@ -155,8 +160,16 @@ class schedulable_observable(abstract_observable):
             print("seems as if object has finished ...")
             self.deactivate()
             return
-            
-        self.schedule_next_step(logical_time, current_transition.dur)           
+
+        # apply shift        
+        logical_time = logical_time + self.shift_difference
+        self.shift_difference = 0
+
+        # apply scatter        
+        scatter = current_transition.scatter
+        current_transition.scatter = 0
+                
+        self.schedule_next_step(logical_time, current_transition.dur + scatter)           
     def schedule_next_step(self, current_logical_time, time):
         scheduler.schedule_function(self._uuid, self.next, current_logical_time + time)    
     
