@@ -184,20 +184,22 @@ SynthDef(\grain8rev, {| bufnum, gain, start, length, rev, pan, cutoff, speed |
 ).store;
 
 // Based on the risset port by Frederik Oloffson
-SynthDef(\risset, {|pan, freq, gain, length, cutoff|
+SynthDef(\risset, {|freq, gain, a, d, s, r, pan, cutoff|
+	var length = a + d + s + r;
 	var amps= #[1, 0.67, 1, 1.8, 2.67, 1.67, 1.46, 1.33, 1.33, 1, 1.33];
 	var durs= #[1, 0.9, 0.65, 0.55, 0.325, 0.35, 0.25, 0.2, 0.15, 0.1, 0.075];
 	var frqs= #[0.56, 0.56, 0.92, 0.92, 1.19, 1.7, 2, 2.74, 3, 3.76, 4.07];
 	var dets= #[0, 1, 0, 1.7, 0, 0, 0, 0, 0, 0, 0];
 	var src= LPF.ar(Mix.fill(11, {|i|
-		var env= EnvGen.ar(Env.perc(0.015, length*durs[i], amps[i], -4.5), 1);
+		var env= EnvGen.ar(Env.perc(0.005, length*durs[i], amps[i], -4.5), 1);
 		SinOsc.ar(freq*frqs[i]+dets[i], 0, gain*env);
 	}), cutoff);
 	Out.ar(0, Pan2.ar(src, pan));
 }).store;
 
 // Based on the risset port by Frederik Oloffson
-SynthDef(\rissetrev, {|pan, freq, gain, length, cutoff, rev|
+SynthDef(\rissetrev, {|freq, gain, a, d, s, r, pan, rev, cutoff|
+	var length = a + d + s + r;
 	var amps= #[1, 0.67, 1, 1.8, 2.67, 1.67, 1.46, 1.33, 1.33, 1, 1.33];
 	var durs= #[1, 0.9, 0.65, 0.55, 0.325, 0.35, 0.25, 0.2, 0.15, 0.1, 0.075];
 	var frqs= #[0.56, 0.56, 0.92, 0.92, 1.19, 1.7, 2, 2.74, 3, 3.76, 4.07];
@@ -235,7 +237,7 @@ SynthDef(\pluckrev, {|out=0, freq=440, pan=0, length=0.5, gain=0.3, cutoff=12000
 	string = LeakDC.ar(LPF.ar(Pan2.ar(string, pan), cutoff));
 	filterenv = Env([lim_freq, lim_cutoff, lim_cutoff * 0.8, lim_cutoff * 0.8, 0], [3, 60, 100, 100]);
 	snd = BLowPass4.ar(string, EnvGen.ar(filterenv)) * gain;
-	revsnd = FreeVerb.ar(snd, mix:rev, room:0.6);
+	revsnd = FreeVerb.ar(snd, mix:rev, room:0.2);
 	DetectSilence.ar(revsnd, doneAction:2);
 	Out.ar(0, revsnd)
 }).store;
