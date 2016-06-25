@@ -89,6 +89,9 @@ class rand(schedulable_observable):
     def next_event(self):
         return random.choice(self.events)
 
+class probability_overflow_exception():
+    pass
+
 class chance(schedulable_observable):
     def __init__(self):
         schedulable_observable.__init__(self)        
@@ -106,7 +109,7 @@ class chance(schedulable_observable):
                 probability_count += 1
                 if probability_count > 100:
                     print("probability overflow !")
-                    break
+                    #raise probability_overflow_exception
         for i in range(probability_count, 100):
              self.event_list.append(default)
         return self    
@@ -122,5 +125,56 @@ class chance(schedulable_observable):
             self.event.step = self.step
         self.step += 1
         return self.event
-    
+
+class node():
+    def __init__(self, node_id, event):        
+        self.node_id = node_id
+        self.event = event                        
+        
+class edge():
+    def __init__(self, source, target, dur=256, prob=100):
+        self.source = source
+        self.target = target
+        self.dur = dur
+        self.prob = prob
+
+class graph(schedulable_observable):
+    """ markov graph """
+    def __init__(self):
+        schedulable_observable.__init__(self)        
+        self.step = 0
+        self.event_dict = {}
+        self.event = silent_event()
+        self.transition = silent_event()
+        self.current_node_id = None
+        #self.update(default, event_tuples)
+    def update(self, *graph_elems):
+        self.event_dict = {}
+        self.trans_dict = {}
+        for elem in graph_elems:
+            if type(elem) is node:
+                if self.current_node_id is None:
+                    self.current_node_id = elem.node_id
+                self.event_dict[elem.node_id] = elem.event
+            elif type(elem) is edge:
+                try:
+                    self.trans_dict[elem.source]
+                except KeyError:                        
+                    self.trans_dict[elem.source] = []
+                for i in range(0, elem.prob):
+                    self.trans_dict[elem.source].append((elem.target, transition(elem.dur)))
+    def next_transition(self):
+        if hasattr(self.transition, "step"):
+            self.transition.step = self.step
+        return self.transition
+    def next_event(self):
+        self.event = self.event_dict[self.current_node_id]
+        trans_tuple = random.choice(self.trans_dict[self.current_node_id])
+        self.transition = trans_tuple[1]
+        self.current_node_id = trans_tuple[0]
+        if hasattr(self.event, "step"):
+            self.event.step = self.step
+        self.step += 1
+        return self.event
+
     
