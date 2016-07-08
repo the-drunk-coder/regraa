@@ -43,7 +43,9 @@ class loop(schedulable_observable):
         self.transitions = []
         for arg in sequence:                        
             self.events.append(arg[0])
-            self.transitions.append(transition(arg[1]))                    
+            self.transitions.append(transition(arg[1]))
+        if len(self.events) < self.index:
+            self.index = 0
         return self
     def next_transition(self):
         trans = self.transitions[self.index]
