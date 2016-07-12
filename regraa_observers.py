@@ -44,9 +44,9 @@ class sound_out(abstract_observer):
         except ValueError:           
             akita = False
         try:
-            type(event).mro().index(akita_param_)
+            type(event).mro().index(akita_param_event)
         except ValueError:           
-            akita_param = False
+            akita_param = False        
         return akita or akita_param
     def is_activator(self):
         return True

@@ -32,6 +32,12 @@ class silent_event(event):
         sound_event.__init__(self, gain = gain, dur = dur)
     def play(self):
         pass
+
+class akita_param_event(sound_event):
+    def __init__(self, gain=0.5, dur=0):
+        sound_event.__init__(self, gain = gain, dur = dur)
+    def play(self):
+        pass
     
 class tuned_sound_event(sound_event):
     def __init__(self, *args, gain=0.5, dur=256):
@@ -74,7 +80,7 @@ class synth_sound_event(sound_event):
 
 class akita_(sound_event):
     def __init__(self, instance, start=0.0, dur=256, fade_in=0, fade_out=0, gain=0.2, flippiness=0.0, fuzziness=0.0, rev=0.0,
-                 cutoff=20000, q=2, mean_filter_on=0, sample_repeat=1, samplerate_mod=1, pan=0.5,
+                 lp_cutoff=20000, lp_q=2, mean_filter_on=0, sample_repeat=1, samplerate_mod=1, pan=0.5,
                  peak_q=1.0, peak_gain=0.0, peak_f=1000, hp_q = 1.0, hp_freq=1 ):        
         sound_event.__init__(self, gain = gain, dur = dur)
         self.fade_in = fade_in
@@ -86,8 +92,8 @@ class akita_(sound_event):
         self.fuzziness = fuzziness
         self.rev = rev
         self.mean_filter_on = mean_filter_on
-        self.lp_q = q
-        self.lp_cutoff = cutoff
+        self.lp_q = lp_q
+        self.lp_cutoff = lp_cutoff
         self.sample_repeat = sample_repeat
         self.samplerate_mod = samplerate_mod
         self.pan = pan
@@ -122,11 +128,11 @@ class akita_(sound_event):
         return osc_tools.build_bundle(self.ntp_timestamp, message)
 # end akita_
 
-class akita_param_(sound_event):
+class akita_param_(akita_param_event):
     def __init__(self, instance, gain=0.2, flippiness=0.0, fuzziness=0.0, rev=0.0, cutoff=20000, q=2,
                  mean_filter_on=0, sample_repeat=1, samplerate_mod=1, pan=0.5,
                  peak_q=1.0, peak_gain=0.0, peak_f=1000, hp_q = 1.0, hp_freq=1):        
-        sound_event.__init__(self, gain = gain, dur = 0)
+        akita_param_event.__init__(self, gain = gain, dur = 0)
         self.additional_latency = default.akita_latency
         self.instance = instance        
         self.flippiness = flippiness
@@ -164,6 +170,102 @@ class akita_param_(sound_event):
                                           float(self.hp_freq))
         return osc_tools.build_bundle(self.ntp_timestamp, message)
 # end akita_
+
+
+class akita_nl_(akita_param_event):
+    def __init__(self, instance,
+                 kn = 0.9, kp = 0.9, gn = 1.0,
+		      gp = 1.0, alpha_mix = 0.5, gain_sc = 1.0,
+		      g_pre = 1.0, g_post = 1.0, lp_freq = 2000, on=0):        
+        akita_param_event.__init__(self, gain = 0, dur = 0)        
+        self.additional_latency = default.akita_latency
+        self.instance = instance
+        self.kn = 0.9
+        self.kp = 0.9
+        self.gn = 1.0
+        self.gp = 1.0
+        self.alpha_mix = 0.5
+        self.gain_sc = 1.0
+        self.g_pre = 1.0
+        self.g_post = 1.0
+        self.lp_freq = 2000
+        self.on = on
+    def update(self):
+        self.additional_latency = default.akita_latency
+    def get_osc_bundle(self):            
+        message = osc_tools.build_message("/akita/param/nonlin",                                          
+                                          float(self.kn),
+                                          float(self.kp),                                          
+                                          float(self.gn),
+                                          float(self.gp),
+                                          float(self.alpha_mix),
+                                          float(self.gain_sc),                                          
+                                          float(self.g_pre),
+                                          float(self.g_post),
+                                          float(self.lp_freq),
+                                          int(self.on))                                          
+        return osc_tools.build_bundle(self.ntp_timestamp, message)
+# end akita_nl_param
+
+class akita_lti1_(akita_param_event):
+    def __init__(self, instance,
+                 hp_freq=1, hp_q=1,
+                 peak_freq=5000, peak_bw=300, peak_gain=0.0,
+                 lp_freq=20000, lp_q=1):
+                 
+        akita_param_event.__init__(self, gain = 0, dur = 0)        
+        self.additional_latency = default.akita_latency
+        self.instance = instance
+        self.hp_freq = hp_freq;
+        self.hp_q = hp_q;
+        self.peak_freq = peak_freq;
+        self.peak_gain = peak_gain;
+        self.peak_bw = peak_bw;        
+        self.lp_freq = lp_freq;
+        self.lp_q = lp_q;        
+    def update(self):
+        self.additional_latency = default.akita_latency
+    def get_osc_bundle(self):            
+        message = osc_tools.build_message("/akita/param/lti/one",                                          
+                                          float(self.hp_q),
+                                          float(self.hp_freq),                                          
+                                          float(self.peak_bw),
+                                          float(self.peak_freq),
+                                          float(self.peak_gain),
+                                          float(self.lp_q),                                          
+                                          float(self.lp_freq))                                          
+        return osc_tools.build_bundle(self.ntp_timestamp, message)
+# end akita_nl_param
+
+class akita_lti2_(akita_param_event):
+    def __init__(self, instance,
+                 hp_freq=1, hp_q=1,
+                 peak_freq=5000, peak_bw=300, peak_gain=0.0,
+                 lp_freq=20000, lp_q=1):
+                 
+        akita_param_event.__init__(self, gain = 0, dur = 0)        
+        self.additional_latency = default.akita_latency
+        self.instance = instance
+        self.hp_freq = hp_freq;
+        self.hp_q = hp_q;
+        self.peak_freq = peak_freq;
+        self.peak_gain = peak_gain;
+        self.peak_bw = peak_bw;        
+        self.lp_freq = lp_freq;
+        self.lp_q = lp_q;        
+    def update(self):
+        self.additional_latency = default.akita_latency
+    def get_osc_bundle(self):            
+        message = osc_tools.build_message("/akita/param/lti/two",                                          
+                                          float(self.hp_q),
+                                          float(self.hp_freq),                                          
+                                          float(self.peak_bw),
+                                          float(self.peak_freq),
+                                          float(self.peak_gain),
+                                          float(self.lp_q),                                          
+                                          float(self.lp_freq))                                          
+        return osc_tools.build_bundle(self.ntp_timestamp, message)
+# end akita_nl_param
 
 class sample_sound_event(synth_sound_event):
     def __init__(self, *args, gain=0.5, dur=0, a=4, speed=1.0, start=0.0, r=5, rev=0.0, pan=0.0, cutoff=20000):
