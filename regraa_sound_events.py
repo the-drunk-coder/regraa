@@ -180,15 +180,15 @@ class akita_nl_(akita_param_event):
         akita_param_event.__init__(self, gain = 0, dur = 0)        
         self.additional_latency = default.akita_latency
         self.instance = instance
-        self.kn = 0.9
-        self.kp = 0.9
-        self.gn = 1.0
-        self.gp = 1.0
-        self.alpha_mix = 0.5
-        self.gain_sc = 1.0
-        self.g_pre = 1.0
-        self.g_post = 1.0
-        self.lp_freq = 2000
+        self.kn = kn
+        self.kp = kp
+        self.gn = gn
+        self.gp = gp
+        self.alpha_mix = alpha_mix
+        self.gain_sc = gain_sc
+        self.g_pre = g_pre
+        self.g_post = g_post
+        self.lp_freq = lp_freq
         self.on = on
     def update(self):
         self.additional_latency = default.akita_latency
@@ -365,6 +365,19 @@ class midi_(tuned_sound_event):
             del notes_on[current_pitch]        
 
 """ Synthetic sounds, created with the SC3 backend ... """
+
+class bow_(tuned_synth_sound_event):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
+        self.synth_name = "bow"
+        tuned_synth_sound_event.__init__(self, args[0], gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)
+# end bow_
+
+
+class beep_(tuned_synth_sound_event):
+    def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):
+        self.synth_name = "beep"
+        tuned_synth_sound_event.__init__(self, args[0], gain=gain, dur=dur, a=a, d=d, r=r, rev=rev, pan=pan, cutoff=cutoff)
+# end beep_
 
 class sine_(tuned_synth_sound_event):
     def __init__(self, *args, gain=0.5, dur=256, a=4, d=5, r=5, rev=0.0, pan=0.0, cutoff=15000):

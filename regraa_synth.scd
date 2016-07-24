@@ -241,3 +241,51 @@ SynthDef(\pluckrev, {|out=0, freq=440, pan=0, length=0.5, gain=0.3, cutoff=12000
 	DetectSilence.ar(revsnd, doneAction:2);
 	Out.ar(0, revsnd)
 }).store;
+
+SynthDef.new(\beep, { | freq, gain, a, d, s, r, cutoff, pan |
+	var lim_cutoff = min(cutoff,15000);
+	var lim_freq = min(freq, 15000);
+	var lim_gain = min(gain, 1.1);
+	var filterenv = Env.new([lim_freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
+	var ampenv = Env.new([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
+	var snd = BLowPass4.ar(Beep.ar(freq), EnvGen.ar(filterenv)) * EnvGen.ar(ampenv, doneAction: 2);
+	Out.ar(0, Pan2.ar(snd, pan))
+	}
+).store;
+
+SynthDef.new(\beeprev, { | freq, gain, a, d, s, r, rev, cutoff, pan |
+	var lim_cutoff = min(cutoff,15000);
+	var lim_freq = min(freq, 15000);
+	var lim_gain = min(gain, 1.1);
+	var filterenv = Env([lim_freq, lim_cutoff, lim_cutoff * 0.8, lim_cutoff * 0.8, 0], [a, d, s, r]);
+	var ampenv = Env([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
+	var snd = BLowPass4.ar(Beep.ar(freq), EnvGen.ar(filterenv)) * EnvGen.ar(ampenv);
+	var revsnd = FreeVerb.ar(snd, mix:rev, room:0.6);
+	DetectSilence.ar(revsnd, doneAction:2);
+	Out.ar(0, Pan2.ar(revsnd, pan))
+	}
+).store;
+
+SynthDef.new(\bow, { | freq, gain, a, d, s, r, cutoff, pan |
+	var lim_cutoff = min(cutoff,15000);
+	var lim_freq = min(freq, 15000);
+	var lim_gain = min(gain, 1.1);
+	var filterenv = Env.new([lim_freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
+	var ampenv = Env.new([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
+	var snd = BLowPass4.ar(StkInst.ar(Stk.at("Bowed"),freq, 1, gain, 0.5,[2,64, 4,17,11,52,1,0,23,128,128]), EnvGen.ar(filterenv)) * EnvGen.ar(ampenv, doneAction: 2);
+	Out.ar(0, Pan2.ar(snd, pan))
+	}
+).store;
+
+SynthDef.new(\bowrev, { | freq, gain, a, d, s, r, rev, cutoff, pan |
+	var lim_cutoff = min(cutoff,15000);
+	var lim_freq = min(freq, 15000);
+	var lim_gain = min(gain, 1.1);
+	var filterenv = Env([lim_freq, lim_cutoff, lim_cutoff * 0.8, lim_cutoff * 0.8, 0], [a, d, s, r]);
+	var ampenv = Env([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
+	var snd = BLowPass4.ar(StkInst.ar(Stk.at("Bowed"), freq, 1, gain, 0.5,[2,64, 4,17,11,52,1,0,23,128,128]), EnvGen.ar(filterenv)) * EnvGen.ar(ampenv);
+	var revsnd = FreeVerb.ar(snd, mix:rev, room:0.6);
+	DetectSilence.ar(revsnd, doneAction:2);
+	Out.ar(0, Pan2.ar(revsnd, pan))
+	}
+).store;

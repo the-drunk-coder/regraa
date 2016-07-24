@@ -178,10 +178,18 @@ class map(abstract_observer):
         return self
     def on_event(self, event):
         #print("EVENT MOOOD!")
-        if hasattr(self.event_modifier, "step"):
-            self.event_modifier.step = self.step
-        self.step += 1        
-        return self.event_modifier.apply_to(event)
+        if type(self.event_modifier) is list:
+            for modifier in self.event_modifier:
+                if hasattr(modifier, "step"):
+                    modifier.step = self.step
+                self.step += 1
+                event = modifier.apply_to(event)
+            return event
+        else:    
+            if hasattr(self.event_modifier, "step"):
+                self.event_modifier.step = self.step
+            self.step += 1
+            return self.event_modifier.apply_to(event)        
     def on_transition(self, transition):
         #print("TRANS MOOOD!")
         if self.transition_modifier is not None:
@@ -216,10 +224,18 @@ class chance_map(abstract_observer):
         current_modifiers = random.choice(self.modifier_list)
         self.event_modifier = current_modifiers[0]
         self.transition_modifier = current_modifiers[1]
-        if hasattr(self.event_modifier, "step"):
-            self.event_modifier.step = self.step
-        self.step += 1
-        return self.event_modifier.apply_to(event)
+        if type(self.event_modifier) is list:
+            for modifier in self.event_modifier:
+                if hasattr(modifier, "step"):
+                    modifier.step = self.step
+                self.step += 1
+                event = modifier.apply_to(event)
+            return event
+        else:    
+            if hasattr(self.event_modifier, "step"):
+                self.event_modifier.step = self.step
+            self.step += 1
+            return self.event_modifier.apply_to(event)
     def on_transition(self, transition):
         if hasattr(self.transition_modifier, "step"):
             self.transition_modifier.step = self.step
