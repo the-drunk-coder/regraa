@@ -10,10 +10,10 @@
 (require 'pulse)
 
 (defvar reGraa-events
-  '("snd1" "snd2" "snd3" "snd4" "snd5" "snd6" "snd7" "snd8" "buzz" "sine" "pluck" "akita" "midi" "say" "sqr" "risset" "sample"))
+  '("snd1" "snd2" "sinestretch" "mul" "add" "div" "scatter" "sub" "snd3" "snd4" "snd5" "snd6" "snd7" "snd8" "buzz" "sine" "pluck" "akita" "midi" "say" "sqr" "risset" "sample" "beep"))
 
 (defvar reGraa-keywords
-      '("chance" "rand" "just" "loop" "seq" "graph" "map" "chance_map"))
+      '("ctrl" "dpar" "chance" "rand" "just" "loop" "seq" "graph" "map" "chance_map"))
 
 (defvar reGraa-font-lock-defaults
   `((

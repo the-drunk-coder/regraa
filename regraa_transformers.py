@@ -217,18 +217,25 @@ class map(abstract_observer):
             return transition    
     
 class chance_map(abstract_observer):
-    def __init__(self, *modifier_tuples, default=(none(), none())):
+    def __init__(self, *modifier_tuples, default=(none(), none()), dyn=False):
         abstract_observer.__init__(self)
         self.step = 0
         self.modifier_list = []
         self.event_modifier = none()
         self.transition_modifier = none()
+        self.dyn = dyn
+        self.modifier_tuples = modifier_tuples
+        self.default = default
         self.update(default, modifier_tuples)
     def update(self, default, modifier_tuples):
         self.modifier_list = []
-        probability_count = 0
+        probability_count = 0        
         for modifier_tuple in modifier_tuples:
-            for i in range(0, modifier_tuple[0]):
+            if type(modifier_tuple[0]) is dpar:
+                tmp_prob = modifier_tuple[0].resolve()
+            else:
+                tmp_prob = modifier_tuple[0]
+            for i in range(0, tmp_prob):
                 self.modifier_list.append((modifier_tuple[1], modifier_tuple[2]))
                 probability_count += 1
                 if probability_count > 100:
@@ -238,6 +245,8 @@ class chance_map(abstract_observer):
              self.modifier_list.append(default)
         return self
     def on_event(self, event):
+        if self.dyn:
+            self.update(self.default, self.modifier_tuples)
         current_modifiers = random.choice(self.modifier_list)
         self.event_modifier = current_modifiers[0]
         self.transition_modifier = current_modifiers[1]
