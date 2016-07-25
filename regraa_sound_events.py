@@ -9,6 +9,7 @@ from pygame import midi
 from pygame import time as pg_time 
 from regraa_pitch import *
 from regraa_reactive_base import *
+from regraa_dynamic_parametrization import *
 import regraa_supercollider_client as sc_client
 import regraa_akita_client as akita_client
 from random import randint 
@@ -21,12 +22,22 @@ class sound_event(event):
         self.dur = dur
         self.additional_latency = 0
         self.scatter = 0
+        self.temp_params = {}
     def play(self):
         raise NotImplementedError
     # method to be called before playing, i.e. to update latency and the like
     def update(self):
         pass
-
+    def resolve_params(self):       
+        for key in self.__dict__.keys():
+            if type(self.__dict__[key]) is dpar:
+                self.temp_params[key] = self.__dict__[key]
+                self.__dict__[key] = self.temp_params[key].resolve()
+    def unresolve_params(self):       
+        for key in self.temp_params.keys():
+            self.__dict__[key] = self.temp_params[key]            
+        self.temp_params = {}
+        
 class silent_event(event):
     def __init__(self, gain=0.5, dur=0):
         sound_event.__init__(self, gain = gain, dur = dur)

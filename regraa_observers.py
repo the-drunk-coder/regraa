@@ -8,6 +8,8 @@ class sound_out(abstract_observer):
     def __init__(self):
         abstract_observer.__init__(self)
     def on_event(self, event):
+        if hasattr(event, "resolve_params"):
+            event.resolve_params()
         if is_chord(event):
             for sub_event in event.content:
                 #sub_event.ntp_timestamp = event.ntp_timestamp
@@ -29,6 +31,8 @@ class sound_out(abstract_observer):
         else:
             async = threading.Thread(target=event.play)
             async.start()
+        if hasattr(event, "unresolve_params"):
+            event.unresolve_params()
         return event
     def is_synth_sound_event(self, event):
         try:
@@ -52,6 +56,15 @@ class sound_out(abstract_observer):
         return True
 
 
+class control_out(abstract_observer):
+    def __init__(self):
+        abstract_observer.__init__(self)
+    def on_event(self, event):        
+        async = threading.Thread(target=event.execute)
+        async.start()
+    def is_activator(self):
+        return True
+    
     
 snd1 = sound_out()
 snd2 = sound_out()
@@ -64,3 +77,4 @@ snd8 = sound_out()
 snd9 = sound_out()
 snd10 = sound_out()
 
+ctrl1 = control_out()

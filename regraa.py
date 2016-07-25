@@ -2,9 +2,11 @@ import os, sys
 from infix import shift_infix as infix
 from regraa_pitch import *
 from regraa_sound_events import *
+from regraa_control_events import *
 from regraa_generators import *
 from regraa_observers import *
 from regraa_transformers import *
+from regraa_dynamic_parametrization import *
 import regraa_akita_client as akita_client
 from regraa_defaults import regraa_defaults as defaults
 

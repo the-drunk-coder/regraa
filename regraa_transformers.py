@@ -1,5 +1,6 @@
 from enum import Enum
 from regraa_reactive_base import *
+from regraa_dynamic_parametrization import *
 from regraa_defaults import regraa_defaults as default
 import random
 import math
@@ -8,6 +9,7 @@ class regraa_universal_modifier():
     def __init__(self, param="", destructive=False):                
         self.param = param        
         self.destructive = destructive
+        self.temp_params = {}
     def apply_to(self, entity):
         if self.destructive:
             #print("DESTROY!!!")
@@ -15,12 +17,27 @@ class regraa_universal_modifier():
         else:
             return self.modify_entity(copy.deepcopy(entity))
     def modify_entity(self, entity):                
+        self.resolve_params()
         if hasattr(entity, self.param):
-            setattr(entity, self.param, self.calculate_value(getattr(entity, self.param)))
+            if type(getattr(entity, self.param)) is dpar:
+                temp = entity.__dict__[self.param].resolve()
+                entity.__dict__[self.param].set(self.calculate_value(temp))
+            else:                
+                setattr(entity, self.param, self.calculate_value(getattr(entity, self.param)))
+        self.unresolve_params()
         return entity
     def calculate_value(self, current_value):
         raise NotImplementedError    
-    
+    def resolve_params(self):       
+        for key in self.__dict__.keys():
+            if type(self.__dict__[key]) is dpar:
+                self.temp_params[key] = self.__dict__[key]
+                self.__dict__[key] = self.temp_params[key].resolve()
+    def unresolve_params(self):       
+        for key in self.temp_params.keys():
+            self.__dict__[key] = self.temp_params[key]            
+        self.temp_params = {}
+        
 # dummy modifier
 class none(regraa_universal_modifier):
     def __init__(self):
