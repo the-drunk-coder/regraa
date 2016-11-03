@@ -138,6 +138,7 @@
      (reGraa-send-string s)     
      (mark-paragraph)
      (pulse-momentary-highlight-region (mark) (point))
+     (deactivate-mark)
      )
     )
   )

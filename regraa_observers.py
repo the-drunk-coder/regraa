@@ -8,7 +8,7 @@ class sound_out(abstract_observer):
     def __init__(self):
         abstract_observer.__init__(self)
     def on_event(self, event):
-        if hasattr(event, "resolve_params"):
+        if hasattr(event, "resolve_params"):            
             event.resolve_params()
         if is_chord(event):
             for sub_event in event.content:
@@ -26,7 +26,7 @@ class sound_out(abstract_observer):
                 akita_client.send(event.instance, event.get_osc_bundle())
             except Exception as e:
                 print(e)
-                print("Couldn't  process akita event for some reason")
+                print("Couldn't process akita event for some reason")
                 #raise(e)
         else:
             async = threading.Thread(target=event.play)
@@ -78,3 +78,10 @@ snd9 = sound_out()
 snd10 = sound_out()
 
 ctrl1 = control_out()
+ctrl2 = control_out()
+ctrl3 = control_out()
+ctrl4 = control_out()
+ctrl5 = control_out()
+ctrl6 = control_out()
+ctrl7 = control_out()
+ctrl8 = control_out()

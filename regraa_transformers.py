@@ -11,11 +11,16 @@ class regraa_universal_modifier():
         self.destructive = destructive
         self.temp_params = {}
     def apply_to(self, entity):
+        # this resolve-stack construct really sucks ...
+        
+        #entity.resolve_params()
         if self.destructive:
             #print("DESTROY!!!")
-            return self.modify_entity(entity)                    
+            return self.modify_entity(entity)
         else:
             return self.modify_entity(copy.deepcopy(entity))
+
+        #entity.unresolve_params()
     def modify_entity(self, entity):                
         self.resolve_params()
         if hasattr(entity, self.param):
@@ -24,7 +29,7 @@ class regraa_universal_modifier():
                 entity.__dict__[self.param].set(self.calculate_value(temp))
             else:                
                 setattr(entity, self.param, self.calculate_value(getattr(entity, self.param)))
-        self.unresolve_params()
+            self.unresolve_params()
         return entity
     def calculate_value(self, current_value):
         raise NotImplementedError    
