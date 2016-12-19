@@ -1,3 +1,7 @@
+o = Server.local.options;
+o.memSize.postln;
+o.memSize = 8192;
+
 SynthDef.new(\buzz, { | freq, gain, a, d, s, r, lp_cutoff, pan |
 	var lim_cutoff = min(lp_cutoff,15000);
 	var lim_freq = min(freq, 15000);
@@ -128,31 +132,33 @@ SynthDef(\samplrev, {| bufnum, gain, start, rev, pan, lp_cutoff, lp_q, hp_cutoff
 	}
 ).store;
 
+// initial envelope on sample, the cleanest one with only one limiter, just getting rid of the clicks ...
 SynthDef(\grain, {| bufnum, gain, start, length, a, r, rev, pan, lp_cutoff, lp_q, hp_cutoff, hp_q, pf_freq, pf_q, pf_gain, speed |
-	//var lim_cutoff = min(cutoff, 20000);
-	var lim_gain = min(gain, 1.1);
-	var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length, r]);
+	var lim_gain = min(gain, 1.0);
+	//var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length - a - r, r], curve:'wel');
+	var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length - a - r, r]);
 	var sample = PlayBuf.ar(1, bufnum, speed, 1, startPos: BufDur.ir(bufnum) * 44100 * start);
 	var sample_hp = BHiPass.ar(sample, hp_cutoff, hp_q);
 	var sample_peak = BPeakEQ.ar(sample_hp, pf_freq, pf_q, pf_gain);
 	var sample_lp = BLowPass.ar(sample_peak, lp_cutoff, lp_q);
-	//var sampl = LPF.ar(PlayBuf.ar(1, bufnum, speed, 1, startPos: BufDur.ir(bufnum) * 44100 * start), cutoff) * EnvGen.ar(cutenv, doneAction:2);
-	Out.ar(0, Pan2.ar(sample_lp * EnvGen.ar(cutenv, doneAction:2) , pan));
+	var sample_env = Limiter.ar(sample_lp, level:1.0, dur:0.006);
+	Out.ar(0, Pan2.ar(sample_env * EnvGen.ar(cutenv, doneAction:2), pan));
 	}
 ).store;
 
 SynthDef(\grainrev, {| bufnum, gain, start, length, a, r, rev, pan, lp_cutoff, lp_q, hp_cutoff, hp_q, pf_freq, pf_q, pf_gain, speed |
-	//var lim_cutoff = min(cutoff_lp,20000);
-	var lim_gain = min(gain, 1.1);
-	var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length, r]);
+	var lim_gain = min(gain, 1.0);
+	//var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length - a - r, r], curve:'wel');
+	var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length - a - r, r]);
 	var sample = PlayBuf.ar(1, bufnum, speed, 1, startPos: BufDur.ir(bufnum) * 44100 * start);
 	var sample_hp = BHiPass.ar(sample, hp_cutoff, hp_q);
 	var sample_peak = BPeakEQ.ar(sample_hp, pf_freq, pf_q, pf_gain);
 	var sample_lp = BLowPass.ar(sample_peak, lp_cutoff, lp_q);
-	//var sampl = LPF.ar(PlayBuf.ar(1, bufnum, speed, 1, startPos: BufDur.ir(bufnum) * 44100 * start), cutoff) * EnvGen.ar(cutenv);
-	var revsampl = FreeVerb.ar(sample_lp * EnvGen.ar(cutenv, doneAction:2), mix:rev, room:0.6);
-	DetectSilence.ar(revsampl, doneAction:2);
-	Out.ar(0, Pan2.ar(revsampl, pan));
+	var sample_env = Limiter.ar(sample_lp * EnvGen.ar(cutenv), level:1.0, dur:0.006);
+	var revsampl = FreeVerb.ar(sample_env, mix:rev, room:0.6) + (sample_env * (1 - rev));
+	//DetectSilence.ar(revsampl, doneAction:2);
+    var revenv = Env.new([0, 1.0, 1.0, 0], [0, length + a + r + 1.4, 0.6]);
+	Out.ar(0, Pan2.ar(revsampl  * EnvGen.ar(revenv, doneAction:2), pan));
 	}
 ).store;
 
