@@ -336,6 +336,9 @@ class sample_sound_event(synth_sound_event):
         #print(co_pf_freq)
         #print(float(self.dur) / 1000.0)
         #print(self.gain)
+        #print(float(self.dur) / 1000.0)
+        #print(float(self.attack) / 1000.0)
+        #print(float(self.release) / 1000.0)        
         message = osc_tools.build_message("/s_new", current_synth_name, -1, 0, 1,
                                           "bufnum", sc_client.samples[self.folder + ":" + self.name],
                                           "speed", self.speed,

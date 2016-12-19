@@ -240,7 +240,7 @@ class chance_map(abstract_observer):
                 tmp_prob = modifier_tuple[0].resolve()
             else:
                 tmp_prob = modifier_tuple[0]
-            for i in range(0, tmp_prob):
+            for i in range(0, int(tmp_prob)):
                 self.modifier_list.append((modifier_tuple[1], modifier_tuple[2]))
                 probability_count += 1
                 if probability_count > 100:
