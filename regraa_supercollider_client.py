@@ -3,7 +3,7 @@ import regraa_osc_tools as osc_tools
 
 # dict mapping samplename to bufnum
 samples = {}
-sample_root = os.getenv("SAMPLE_ROOT", "~/samples")
+sample_root = os.getenv("SAMPLE_ROOT", "/home/nik/SAMPLES")
 bufnum = 0
 
 port = 57110

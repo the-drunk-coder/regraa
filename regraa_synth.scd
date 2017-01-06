@@ -185,11 +185,15 @@ SynthDef(\sampl8rev, {| bufnum, gain, start, rev, pan, lp_cutoff, speed |
 ).store;
 
 SynthDef(\grain8, {| bufnum, gain, start, length, rev, pan, lp_cutoff, speed |
-	//var lim_cutoff = min(lp_cutoff, 20000);
-	var lim_gain = min(gain, 1.1);
-	var cutenv = Env.new([0, lim_gain, lim_gain, 0], [0.004, length - 0.008, 0.004]);
-	var sampl = LPF.ar(PlayBuf.ar(1, bufnum, speed, 1, startPos: BufDur.ir(bufnum) * 44100 * start), lp_cutoff) * EnvGen.ar(cutenv, doneAction:2);
-	Out.ar(0, PanAz.ar(8, sampl, pan * 0.25, orientation:0));
+	var lim_gain = min(gain, 1.0);
+	//var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length - a - r, r], curve:'wel');
+	var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length - a - r, r]);
+	var sample = PlayBuf.ar(1, bufnum, speed, 1, startPos: BufDur.ir(bufnum) * 44100 * start);
+	var sample_hp = BHiPass.ar(sample, hp_cutoff, hp_q);
+	var sample_peak = BPeakEQ.ar(sample_hp, pf_freq, pf_q, pf_gain);
+	var sample_lp = BLowPass.ar(sample_peak, lp_cutoff, lp_q);
+	var sample_env = Limiter.ar(sample_lp, level:1.0, dur:0.006);
+	Out.ar(0, PanAz.ar(8, sample_env * EnvGen.ar(cutenv, doneAction:2), pan * 0.25, orientation:0));
 	}
 ).store;
 

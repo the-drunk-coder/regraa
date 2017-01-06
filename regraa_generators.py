@@ -2,6 +2,7 @@ import random
 from regraa_reactive_base import *
 from regraa_sound_events import silent_event
 from regraa_defaults import regraa_defaults as default
+from collections import deque
 
 def is_generator(gen):
         try:
@@ -39,8 +40,11 @@ class loop(schedulable_observable):
             self.index_syncables[index] = []        
         self.index_syncables[index].append(syncable)
     def update(self, *sequence):
-        self.events = []
-        self.transitions = []
+        self.source_sequence = list(sequence)
+        #print(sequence)
+        #print(self.source_sequence)
+        self.events = deque([])
+        self.transitions = deque([])
         for arg in sequence:                        
             self.events.append(arg[0])
             self.transitions.append(transition(arg[1]))
@@ -72,7 +76,17 @@ class loop(schedulable_observable):
         self.transitions.pop(pos)
         self.events.insert(pos, event_tuple[0])
         self.transitions.insert(pos, transition(event_tuple[1]))
-
+    def rotl(self):
+        self.events.rotate(-1)
+        self.transitions.rotate(-1)
+    def rotr(self):
+        self.events.rotate(1)
+        self.transitions.rotate(1)
+    def shuffle(self):
+        random.shuffle(self.source_sequence)
+        self.update(*self.source_sequence)
+        
+        
 class rand(schedulable_observable):
     """ Randomized events with randomly chosen transition times between them. """
     def __init__(self):

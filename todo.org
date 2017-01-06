@@ -1,8 +1,5 @@
-* TODO fix brownian 
-* TODO fix wrap
-* TODO markov graphs
+* TODO make dynpar fadeable ...
 * TODO check reverb + pluck sound
-* TODO fix destructive option
 * TODO meta-funktionen als event 
   
   just("bla", sine_(c4), 1024)
@@ -13,16 +10,35 @@
   )
   
   hier sollte der loop das routing übernehmen
-* TODO externe variablen auflösen
+* TODO test-cases für sound events
+* TODO test-cases, überhaupt 
+* TODO doku, as usual 
+* TODO einheitliche default-werte
+* DONE fix destructive option
+  CLOSED: [2016-08-17 Mi 15:00]
+  - CLOSING NOTE [2016-08-17 Mi 15:00] \\
+    nothing to be done here, anymore ... i guess ??
+* DONE markov graphs
+  CLOSED: [2016-08-17 Mi 14:59]
+  - CLOSING NOTE [2016-08-17 Mi 14:59] \\
+    done ...
+* DONE fix wrap
+  CLOSED: [2016-08-17 Mi 14:59]
+  - CLOSING NOTE [2016-08-17 Mi 14:59] \\
+    working ...
+* DONE fix brownian 
+  CLOSED: [2016-08-17 Mi 14:59]
+  - CLOSING NOTE [2016-08-17 Mi 14:59] \\
+    brownian's working again ...
+* DONE externe variablen auflösen
+  CLOSED: [2016-08-17 Mi 14:58]
+  - CLOSING NOTE [2016-08-17 Mi 14:58] \\
+    Andersrum geköst, über dynamische paramater als klasse ...
   
   q = 128
   just("bla", sine_(c4), var(q)) >> snd1 
   
   hier sollte das objekt auf veränderung von q entspr. reagieren
-* TODO test-cases für sound events
-* TODO test-cases, überhaupt 
-* TODO doku, as usual 
-* TODO einheitliche default-werte
 * DONE modificators 
   CLOSED: [2016-03-17 Do 17:10]
 * DONE objekte im inaktiven zustand erstellen

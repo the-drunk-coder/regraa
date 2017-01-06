@@ -4,7 +4,7 @@ import regraa_osc_tools as osc_tools
 
 # dict mapping samplename to bufnum
 akita_ports = {}
-akita_sample_root = os.getenv("AKITA_SAMPLE_ROOT", "/home/nik/akita_samples")
+akita_sample_root = os.getenv("AKITA_SAMPLE_ROOT", "/home/nik/SAMPLES")
 
 address = "127.0.0.1"
 sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
